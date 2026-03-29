@@ -4,3 +4,10 @@ dist/
 .env
 .env.local
 .env.*.local
+.gstack/
+.claude/
+CLAUDE.md
+DESIGN.md
+TODOS.md
+docs/
+server/

@@ -1,0 +1,218 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── 用户 ───────────────────────────────────────────────
+model User {
+  id          String   @id @default(cuid())
+  googleId     String?  @unique
+  passwordHash String?
+  email        String   @unique
+  nickname     String
+  avatarUrl    String?
+  avatarColor String   @default("#94a3b8")
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  threads          Thread[]
+  posts            Post[]
+  chatMessages     ChatMessage[]
+  reactions        Reaction[]
+  reports          Report[]
+  handshakeEvents  HandshakeEvent[]
+  handshakeTickets HandshakeTicket[]
+  watchedMembers   UserMemberWatch[]
+}
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+// ─── 论坛板块 ─────────────────────────────────────────────
+model Board {
+  id          String   @id @default(cuid())
+  slug        String   @unique   // URL 路径，如 "general" "stage48"
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  threads Thread[]
+}
+
+// ─── 帖子（主题） ──────────────────────────────────────────
+model Thread {
+  id        String   @id @default(cuid())
+  title     String
+  boardId   String
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  board  Board  @relation(fields: [boardId], references: [id])
+  author User   @relation(fields: [authorId], references: [id])
+  posts  Post[]
+}
+
+// ─── 回复（论坛楼层）──────────────────────────────────────
+// replyToId: 引用某一楼（>>123 风格，类似 5ch）
+model Post {
+  id        String   @id @default(cuid())
+  content   String
+  threadId  String
+  authorId  String
+  replyToId String?  // 引用的楼层 ID，可为空
+  deletedAt DateTime? // 软删除：保留楼层结构，内容替换为"此消息已删除"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  thread  Thread  @relation(fields: [threadId], references: [id])
+  author  User    @relation(fields: [authorId], references: [id])
+  replyTo Post?   @relation("PostReplies", fields: [replyToId], references: [id])
+  replies Post[]  @relation("PostReplies")
+
+  reports Report[] @relation("PostReports")
+}
+
+// ─── 聊天消息 ─────────────────────────────────────────────
+// replyToId: 引用某条气泡（LINE 风格长按 → 回复）
+model ChatMessage {
+  id        String    @id @default(cuid())
+  roomId    String
+  content   String
+  authorId  String
+  replyToId String?   // 引用的消息 ID，可为空
+  deletedAt DateTime? // 软删除
+
+  createdAt DateTime @default(now())
+
+  author    User          @relation(fields: [authorId], references: [id])
+  replyTo   ChatMessage?  @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies   ChatMessage[] @relation("MessageReplies")
+
+  reactions Reaction[]
+  reports   Report[]   @relation("ChatMessageReports")
+
+  @@index([roomId, createdAt])
+}
+
+// ─── 表情 Reaction ────────────────────────────────────────
+// 同一用户对同一消息的同一表情只能点一次
+model Reaction {
+  id            String   @id @default(cuid())
+  emoji         String   // 如 "👍" "❤️" "😂"
+  userId        String
+  chatMessageId String
+  createdAt     DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id])
+  chatMessage ChatMessage @relation(fields: [chatMessageId], references: [id])
+
+  @@unique([userId, chatMessageId, emoji])
+}
+
+// ─── 举报 ─────────────────────────────────────────────────
+model Report {
+  id            String       @id @default(cuid())
+  reason        String
+  status        ReportStatus @default(PENDING)
+  reporterId    String
+  chatMessageId String?
+  postId        String?
+  createdAt     DateTime     @default(now())
+
+  reporter    User         @relation(fields: [reporterId], references: [id])
+  chatMessage ChatMessage? @relation("ChatMessageReports", fields: [chatMessageId], references: [id])
+  post        Post?        @relation("PostReports", fields: [postId], references: [id])
+}
+
+enum ReportStatus {
+  PENDING   // 待审核
+  RESOLVED  // 已处理
+  DISMISSED // 已忽略
+}
+
+// ─── 握手会功能 ────────────────────────────────────────
+
+// AKB48 成员表（全局，管理员/seed 维护）
+model Member {
+  id       String  @id @default(cuid())
+  name     String                        // 工藤華純
+  nameKana String?                       // くどう かすみ
+  team     String?                       // Team B
+  isActive Boolean @default(true)
+
+  tickets   HandshakeTicket[]
+  watchedBy UserMemberWatch[]
+}
+
+// 用户自建的握手活动（一个活动 = X 轴的一列）
+model HandshakeEvent {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  name            String                         // "56th シングル個握"
+  date            DateTime                       // 活动日期
+  endDate         DateTime?                      // 结束日（跨天活动可选）
+  officialEventId String?                        // 关联官方活动 ID（自动导入时填入，手动创建为 null）
+  createdAt       DateTime  @default(now())
+
+  tickets HandshakeTicket[]
+
+  @@unique([userId, officialEventId])
+  @@index([userId, date])
+}
+
+// 枚数记录（表格的一个单元格）
+model HandshakeTicket {
+  id       String         @id @default(cuid())
+  userId   String
+  user     User           @relation(fields: [userId], references: [id])
+  eventId  String
+  event    HandshakeEvent @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  memberId String
+  member   Member         @relation(fields: [memberId], references: [id])
+  count    Int            @default(0)
+  note     String?
+
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId, memberId])  // 每人每成员每活动只有一条记录
+  @@index([userId])
+}
+
+// 官方活动（从 AKB48 官网同步，全用户共享）
+model OfficialEvent {
+  id             String    @id           // AKB48 の schedule_id（字符串）
+  title          String
+  body           String?                 // 活动详情正文
+  category       String                  // 分类 ID（"1032" 等）
+  parentCategory String?                 // 父分类 ID
+  date           DateTime                // 活动开始时间
+  endDate        DateTime?               // 活动结束时间
+  openDate       DateTime?               // 信息公开时间
+  memberCodes    String?                 // AKB48 内部成员 ID，逗号分隔（"152,153,..."）
+  cssClass       String?                 // 分类样式类（scheduleHandshake 等，用于识别握手会）
+  articleImage   String?                 // 活动封面图 URL
+  syncedAt       DateTime  @default(now()) @updatedAt  // 最后同步时间
+
+  @@index([date])
+}
+
+// 用户关注的成员（决定表格的 Y 轴行）
+model UserMemberWatch {
+  userId    String
+  memberId  String
+  user      User   @relation(fields: [userId], references: [id])
+  member    Member @relation(fields: [memberId], references: [id])
+  sortOrder Int    @default(0)
+
+  @@id([userId, memberId])
+}

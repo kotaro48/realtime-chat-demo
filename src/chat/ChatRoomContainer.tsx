@@ -1,97 +1,119 @@
-import { useMemo, useState } from 'react';
-import type { ChatMessage, RoomInfo, User } from './types';
-import { ChatHeader } from './components/ChatHeader';
-import { MessageList } from './components/MessageList';
-import { ChatInput } from './components/ChatInput';
+import { useEffect, useRef, useState } from 'react'
+import { io, type Socket } from 'socket.io-client'  // socket.io-client: WebSocket 客户端
+import { useNavigate } from 'react-router-dom'       // react-router-dom: 路由跳转
+import { getUser, getToken } from '../lib/auth'       // auth: 读取登录状态和 JWT
+import type { ChatMessage, ChatAuthor, QuotedMessage, ReactionGroup, RoomInfo } from './types'
+import { ChatHeader } from './components/ChatHeader'
+import { MessageList } from './components/MessageList'
+import { ChatInput } from './components/ChatInput'
 
-// 下面这几段是本地 mock 数据，方便先把 UI/交互跑通
-const mockMe: User = {
-  id: 'me',
-  nickname: '我推',
-  avatarColor: '#f472b6'
-};
-
-const mockOther: User = {
-  id: 'other',
-  nickname: '48号应援团',
-  avatarColor: '#38bdf8'
-};
-
-const mockRoom: RoomInfo = {
-  id: 'akb48-lobby',
-  name: 'AKB48 粉丝大厅',
-  onlineCount: 128
-};
-
-const initialMessages: ChatMessage[] = [
-  {
-    id: '1',
-    roomId: mockRoom.id,
-    sender: mockOther,
-    content: '今晚的公演你看了吗？MC 太好笑了哈哈哈～',
-    createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString()
-  },
-  {
-    id: '2',
-    roomId: mockRoom.id,
-    sender: mockMe,
-    content: '看了看了！那段即兴 rap 直接被圈粉！',
-    createdAt: new Date(Date.now() - 1000 * 60 * 4).toISOString()
-  },
-  {
-    id: '3',
-    roomId: mockRoom.id,
-    sender: mockOther,
-    content: '等聊天室打通 WebSocket 后，可以边看直播边弹幕聊天就完美了～',
-    createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString()
-  }
-];
+const ROOM_ID   = 'akb48-lobby'
+const ROOM_NAME = 'AKB48 チャット'
+const SOCKET_URL = window.location.origin
 
 export function ChatRoomContainer() {
-  // useState：在函数组件里声明状态
-  // 这里的 room/currentUser 先固定不变，所以只取 getter，不需要 setter
-  const [room] = useState<RoomInfo>(mockRoom);
-  const [currentUser] = useState<User>(mockMe);
-  // messages 会随着发送消息而变化，所以需要 setMessages
-  const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
+  const navigate = useNavigate()
+  const [room,      setRoom]      = useState<RoomInfo>({ id: ROOM_ID, name: ROOM_NAME, onlineCount: 0 })
+  const [messages,  setMessages]  = useState<ChatMessage[]>([])
+  const [connected, setConnected] = useState(false)
+  const [replyTo,   setReplyTo]   = useState<QuotedMessage | null>(null)
+  const socketRef = useRef<Socket | null>(null)
 
-  // useMemo：基于依赖做“派生数据”缓存，依赖不变时复用上次结果
-  // 这里把原始消息转换成带 isMine 的消息，供展示组件直接渲染
-  const decoratedMessages = useMemo(
-    () =>
-      messages.map((m) => ({
-        ...m,
-        isMine: m.sender.id === currentUser.id
-      })),
-    [messages, currentUser.id]
-  );
+  const authUser = getUser()
+  const currentUser: ChatAuthor | null = authUser
+    ? { id: authUser.id, nickname: authUser.nickname, avatarColor: authUser.avatarColor }
+    : null
 
-  // 子组件 ChatInput 通过 props 回调把输入文本“抬升”到容器组件处理
-  const handleSend = (text: string) => {
-    if (!text.trim()) return;
-    const now = new Date().toISOString();
-    const pending: ChatMessage = {
-      id: `local-${Date.now()}`,
-      roomId: room.id,
-      sender: currentUser,
-      content: text,
-      createdAt: now,
-      status: 'sent'
-    };
-    // 函数式更新：基于上一次 state 计算下一次 state，避免闭包拿到旧值
-    setMessages((prev) => [...prev, pending]);
-  };
+  useEffect(() => {
+    if (!currentUser) return
+
+    const socket = io(`${SOCKET_URL}/chat`, {
+      transports: ['websocket'],
+      auth: { token: getToken() },
+    })
+    socketRef.current = socket
+
+    socket.on('connect',    () => setConnected(true))
+    socket.on('disconnect', () => setConnected(false))
+
+    socket.on('chat:history', (history: ChatMessage[]) => setMessages(history))
+
+    socket.on('chat:message', (incoming: ChatMessage) => {
+      setMessages(prev => {
+        if (prev.some(m => m.id === incoming.id)) return prev
+        return [...prev, incoming]
+      })
+    })
+
+    // reactions 更新：找到对应消息替换 reactions 字段
+    socket.on('chat:reactions', ({ messageId, reactions }: { messageId: string; reactions: ReactionGroup[] }) => {
+      setMessages(prev =>
+        prev.map(m => m.id === messageId ? { ...m, reactions } : m)
+      )
+    })
+
+    socket.on('room:onlineCount', ({ roomId, onlineCount }: { roomId: string; onlineCount: number }) => {
+      if (roomId === ROOM_ID) setRoom(prev => ({ ...prev, onlineCount }))
+    })
+
+    socket.emit('room:join', { roomId: ROOM_ID })
+
+    return () => { socket.disconnect(); socketRef.current = null }
+  }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleSend = (text: string, replyToId?: string) => {
+    if (!socketRef.current || !connected) return
+    socketRef.current.emit('chat:send', { roomId: ROOM_ID, content: text, replyToId })
+    setReplyTo(null)
+  }
+
+  const handleReact = (messageId: string, emoji: string) => {
+    if (!socketRef.current || !connected) return
+    socketRef.current.emit('chat:react', { roomId: ROOM_ID, messageId, emoji })
+  }
+
+  const handleQuote = (message: ChatMessage) => {
+    setReplyTo({
+      id:      message.id,
+      content: message.content,
+      author:  { nickname: message.author.nickname },
+    })
+  }
+
+  if (!currentUser) {
+    return (
+      <div className="flex flex-col h-full">
+        <ChatHeader room={room} onBack={() => navigate('/')} />
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 px-6">
+          <p className="font-ui text-[14px] text-ds-text-2 text-center">
+            チャットに参加するにはログインが必要です
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 rounded-sm px-4 h-9 transition-colors"
+          >
+            ログイン
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    // 容器组件统一组织数据和行为，再通过 props 传给展示组件
     <div className="flex flex-col h-full">
-      <ChatHeader room={room} />
-      <div className="flex-1 flex flex-col border-y border-slate-800 bg-gradient-to-b from-slate-900/60 via-slate-950/80 to-slate-950 px-4">
-        <MessageList messages={decoratedMessages} currentUser={currentUser} />
-      </div>
-      <div className="p-4 bg-slate-900/80">
-        <ChatInput onSend={handleSend} />
-      </div>
+      <ChatHeader room={room} onBack={() => navigate('/')} />
+      <MessageList
+        messages={messages}
+        currentUser={currentUser}
+        onQuote={handleQuote}
+        onReact={handleReact}
+      />
+      <ChatInput
+        onSend={handleSend}
+        replyTo={replyTo}
+        onCancelReply={() => setReplyTo(null)}
+        disabled={!connected}
+      />
     </div>
-  );
+  )
 }

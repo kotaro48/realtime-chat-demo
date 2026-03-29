@@ -2,7 +2,153 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  @apply bg-slate-900 text-slate-50 antialiased;
+/* ============================================================
+   DESIGN TOKENS — AKB48 Fan Community
+   Industrial/Utilitarian x Wabi-Sabi
+   ============================================================ */
+@layer base {
+  :root {
+    /* Page & content backgrounds */
+    --page-bg:    255 255 255;   /* #FFFFFF */
+    --bg:         255 255 255;   /* #FFFFFF — 内容区纯白 */
+    --bg-2:       247 247 245;   /* #F7F7F5 — hover、输入框背景 */
+    --bg-3:       237 237 235;   /* #EDEDEB — 选中状态 */
+
+    /* Borders */
+    --border:     232 232 229;   /* #E8E8E5 — 主要边框（白底上要轻） */
+    --border-2:   240 240 238;   /* #F0F0EE — 轻量分隔线 */
+
+    /* Text */
+    --text:       26 26 28;      /* #1A1A1C — 正文 */
+    --text-2:     62 63 70;      /* #3E3F46 — 次要文字 */
+    --text-3:     110 111 120;   /* #6E6F78 — 辅助文字 */
+    --text-4:     158 159 168;   /* #9E9FA8 — 占位符、元数据 */
+
+    /* Accent — 粉玫瑰，idol 色 */
+    --accent:     225 29 116;    /* #E11D74 */
+    --accent-2:   196 24 106;    /* #C4186A — hover */
+    --accent-bg:  253 240 247;   /* #FDF0F7 — Badge背景 */
+
+    /* shadcn/ui compatibility */
+    --background: 255 255 255;
+    --foreground:  26 26 28;
+    --card:        255 255 255;
+    --card-foreground: 26 26 28;
+    --popover:     255 255 255;
+    --popover-foreground: 26 26 28;
+    --primary:     225 29 116;
+    --primary-foreground: 255 255 255;
+    --secondary:   247 247 245;
+    --secondary-foreground: 26 26 28;
+    --muted:       247 247 245;
+    --muted-foreground: 110 111 120;
+    --destructive: 185 28 28;
+    --destructive-foreground: 255 255 255;
+    --input:       232 232 229;
+    --ring:        225 29 116;
+    --radius:      0.625rem;     /* 10px */
+  }
+
+  /* Dark mode */
+  [data-theme="dark"], .dark {
+    --page-bg:    0 0 0;
+    --bg:         19 20 21;
+    --bg-2:       28 29 31;
+    --bg-3:       37 38 40;
+    --border:     46 47 50;
+    --border-2:   35 36 38;
+    --text:       232 233 230;
+    --text-2:     170 171 176;
+    --text-3:     114 115 122;
+    --text-4:     68 69 76;
+    --accent:     244 63 156;    /* #F43F9C — 暗色模式下亮一档 */
+    --accent-2:   225 29 116;    /* #E11D74 — hover */
+    --accent-bg:  45 10 26;      /* #2D0A1A — Badge背景 */
+
+    --background:  19 20 21;
+    --foreground:  232 233 230;
+    --card:        19 20 21;
+    --card-foreground: 232 233 230;
+    --primary:     244 63 156;
+    --primary-foreground: 255 255 255;
+    --secondary:   28 29 31;
+    --secondary-foreground: 232 233 230;
+    --muted:       28 29 31;
+    --muted-foreground: 114 115 122;
+    --input:       46 47 50;
+    --ring:        244 63 156;
+  }
 }
 
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    /* 页面gutter背景白色（桌面端内容列两侧） */
+    background-color: rgb(var(--page-bg));
+  }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    color: rgb(var(--text));
+    background-color: rgb(var(--page-bg));
+    -webkit-font-smoothing: antialiased;
+  }
+
+}
+
+/* ============================================================
+   MOTION — 三层规范
+   ============================================================ */
+@layer base {
+  /* Layer 2: 状态转换 150ms */
+  * {
+    transition-property: color, background-color, border-color, opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease;
+  }
+
+  /* Layer 1: 触觉反馈 80ms */
+  button:active, [role="button"]:active {
+    transform: scale(0.97);
+    opacity: 0.88;
+    transition: transform 80ms ease, opacity 80ms ease;
+  }
+}
+
+/* ============================================================
+   POST ENTER ANIMATION — Layer 3: 内容进入 200ms
+   ============================================================ */
+@keyframes post-enter {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+
+.post-enter {
+  animation: post-enter 200ms ease-out;
+}
+
+/* Reaction button pop animation */
+@keyframes reaction-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.35); }
+  70%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+
+.reaction-pop {
+  animation: reaction-pop 320ms ease-out;
+}
+
+/* チャットメッセージ進入アニメーション */
+@keyframes chat-message-enter {
+  from { transform: translateY(4px); opacity: 0; }
+  to   { transform: translateY(0);   opacity: 1; }
+}
+.chat-message-enter {
+  animation: chat-message-enter 200ms ease-out;
+}

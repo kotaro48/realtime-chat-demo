@@ -1,12 +1,38 @@
-import { ChatPage } from './chat/ChatPage';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'  // react-router-dom: 路由管理
+import { BoardListPage } from './forum/BoardListPage'
+import { ThreadListPage } from './forum/ThreadListPage'
+import { ThreadDetailPage } from './forum/ThreadDetailPage'
+import { MyPage } from './mypage/MyPage'    // MyPage: 个人中心（握手会记录等）
+import { ChatPage } from './chat/ChatPage'  // ChatPage: リアルタイムチャット
+import { BottomTabBar } from './components/BottomTabBar'  // BottomTabBar: 全局底部导航
+
+// 带 Bottom Tab Bar 的页面布局
+function MainLayout() {
+  return (
+    <>
+      <Outlet />
+      <BottomTabBar />
+    </>
+  )
+}
 
 function App() {
   return (
-    // App 是根组件：这里先只负责页面级布局，不放业务逻辑
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900">
-      <ChatPage />
-    </div>
-  );
+    <BrowserRouter>
+      <Routes>
+        {/* Bottom Tab Bar 布局：掲示板 + チャット */}
+        <Route element={<MainLayout />}>
+          <Route path="/"                              element={<BoardListPage />} />
+          <Route path="/board/:slug"                   element={<ThreadListPage />} />
+          <Route path="/board/:slug/thread/:threadId"  element={<ThreadDetailPage />} />
+          <Route path="/chat"                          element={<ChatPage />} />
+        </Route>
+
+        {/* 无 Bottom Tab Bar 的独立页面 */}
+        <Route path="/mypage" element={<MyPage />} />
+      </Routes>
+    </BrowserRouter>
+  )
 }
 
-export default App;
+export default App
