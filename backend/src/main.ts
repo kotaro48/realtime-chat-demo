@@ -19,7 +19,7 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document); // 挂载到 /api
+  SwaggerModule.setup('docs', app, document); // 挂载到 /docs，避免与 /api 路由冲突
 
   await app.listen(process.env.PORT ?? 3000);
 }
