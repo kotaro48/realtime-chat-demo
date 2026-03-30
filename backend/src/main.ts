@@ -7,6 +7,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  // 允许跨域：前端（Vercel）和后端（Railway）域名不同，必须开启
+  app.enableCors({ origin: '*' });
+
   // 全局启用请求体校验：自动根据 DTO 的装饰器规则校验入参，不合法时返回 400
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
