@@ -9,7 +9,8 @@ import { ChatInput } from './components/ChatInput'
 
 const ROOM_ID   = 'akb48-lobby'
 const ROOM_NAME = 'AKB48 チャット'
-const SOCKET_URL = window.location.origin
+// 生产环境直连 Railway 后端（Vercel rewrites 不支持 WebSocket 升级）
+const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin
 
 export function ChatRoomContainer() {
   const navigate = useNavigate()
@@ -114,6 +115,8 @@ export function ChatRoomContainer() {
         onCancelReply={() => setReplyTo(null)}
         disabled={!connected}
       />
+      {/* BottomTabBar 占位：防止输入框被固定底部导航遮挡 */}
+      <div className="h-[52px] shrink-0" />
     </div>
   )
 }
