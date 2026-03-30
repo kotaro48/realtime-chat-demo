@@ -152,6 +152,66 @@ export class SyncService {
     return { total };
   }
 
+  // ── 成员数据同步：抓取 AKB48 官网成员列表 HTML，解析后 upsert ────────
+  async syncMembers(): Promise<{ count: number }> {
+    // 分别抓正规成员和研究生两个页面
+    const urls = [
+      { url: 'https://www.akb48.co.jp/about/members/?class=0', team: null },
+      { url: 'https://www.akb48.co.jp/about/members/?class=1', team: '研究生' },
+    ];
+
+    let count = 0;
+
+    for (const { url, team: defaultTeam } of urls) {
+      let html = '';
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; Bot/1.0)',
+            'Accept-Language': 'ja,en;q=0.9',
+          },
+        });
+        html = await res.text();
+      } catch (e) {
+        this.logger.warn(`Failed to fetch member list from ${url}: ${e}`);
+        continue;
+      }
+
+      // 按 <li class="memberList gridMem"> 切分，逐个解析成员块
+      const blocks = html.split('<li class="memberList gridMem">').slice(1);
+
+      for (const block of blocks) {
+        // mid: /about/members/detail?mid=110
+        const midMatch = block.match(/\?mid=(\d+)/);
+        if (!midMatch) continue;
+        const memberId = midMatch[1];
+
+        // 日文名：<p class="name clrPink SubTitle fwBold">岩立 沙穂</p>
+        const nameMatch = block.match(/class="name clrPink SubTitle fwBold">([^<]+)<\/p>/);
+        if (!nameMatch) continue;
+        const name = nameMatch[1].trim();
+
+        // 英文名：<p class="enName enGothic clrPink MTxt">Saho Iwatate</p>
+        const nameEnMatch = block.match(/class="enName enGothic clrPink MTxt">([^<]+)<\/p>/);
+        const nameEn = nameEnMatch ? nameEnMatch[1].trim() : null;
+
+        // 期生 / 研究生：<span class="teamName">13期生</span>
+        const teamMatch = block.match(/<span class="teamName">([^<]+)<\/span>/);
+        const team = teamMatch ? teamMatch[1].trim() : defaultTeam;
+
+        await this.prisma.member.upsert({
+          where: { memberId },
+          create: { memberId, name, nameEn, team, isActive: true },
+          update: { name, nameEn, team },
+        });
+        count++;
+      }
+    }
+
+    this.logger.log(`Synced ${count} members`);
+    return { count };
+  }
+
   // ── 毎日深夜 2 時（JST）に自動同期 ──────────────────────────────────
   // CronExpression.EVERY_DAY_AT_2AM = '0 2 * * *'（UTC、JST は+9）
   @Cron('0 17 * * *')  // UTC 17:00 = JST 02:00

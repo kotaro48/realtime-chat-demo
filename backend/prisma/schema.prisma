@@ -143,11 +143,14 @@ enum ReportStatus {
 
 // AKB48 成员表（全局，管理员/seed 维护）
 model Member {
-  id       String  @id @default(cuid())
-  name     String                        // 工藤華純
-  nameKana String?                       // くどう かすみ
-  team     String?                       // Team B
-  isActive Boolean @default(true)
+  id        String  @id @default(cuid())
+  memberId  String? @unique              // AKB48 official mid (from website URL ?mid=xxx)
+  name      String                       // 工藤華純
+  nameKana  String?                      // くどう かすみ
+  nameEn    String?                      // Kasumi Kudo
+  imageUrl  String?                      // profile photo URL
+  team      String?                      // Team B / 研究生
+  isActive  Boolean @default(true)
 
   tickets   HandshakeTicket[]
   watchedBy UserMemberWatch[]

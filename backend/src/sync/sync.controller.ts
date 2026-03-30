@@ -26,6 +26,12 @@ export class SyncController {
     return this.syncService.syncUpcoming();
   }
 
+  // GET /api/sync/members-trigger — 开发用，触发成员同步，上线前删除
+  @Get('sync/members-trigger')
+  async membersTrigger() {
+    return this.syncService.syncMembers();
+  }
+
   // POST /api/sync/trigger — 管理员手动触发同步（当月 + 未来两月）
   @Post('sync/trigger')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
