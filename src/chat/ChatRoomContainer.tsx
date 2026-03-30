@@ -18,6 +18,7 @@ export function ChatRoomContainer() {
   const [messages,  setMessages]  = useState<ChatMessage[]>([])
   const [connected, setConnected] = useState(false)
   const [replyTo,   setReplyTo]   = useState<QuotedMessage | null>(null)
+  const [sendError, setSendError] = useState<string | null>(null)
   const socketRef = useRef<Socket | null>(null)
 
   const authUser = getUser()
@@ -36,6 +37,7 @@ export function ChatRoomContainer() {
 
     socket.on('connect',    () => setConnected(true))
     socket.on('disconnect', () => setConnected(false))
+    socket.on('chat:error', ({ message }: { message: string }) => setSendError(message))
 
     socket.on('chat:history', (history: ChatMessage[]) => setMessages(history))
 
@@ -64,6 +66,7 @@ export function ChatRoomContainer() {
 
   const handleSend = (text: string, replyToId?: string) => {
     if (!socketRef.current || !connected) return
+    setSendError(null)
     socketRef.current.emit('chat:send', { roomId: ROOM_ID, content: text, replyToId })
     setReplyTo(null)
   }
@@ -114,6 +117,8 @@ export function ChatRoomContainer() {
         replyTo={replyTo}
         onCancelReply={() => setReplyTo(null)}
         disabled={!connected}
+        errorMsg={sendError}
+        onClearError={() => setSendError(null)}
       />
       {/* BottomTabBar 占位：防止输入框被固定底部导航遮挡 */}
       <div className="h-[52px] shrink-0" />

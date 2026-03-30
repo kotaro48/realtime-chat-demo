@@ -6,9 +6,11 @@ interface Props {
   replyTo: QuotedMessage | null
   onCancelReply: () => void
   disabled?: boolean
+  errorMsg?: string | null
+  onClearError?: () => void
 }
 
-export function ChatInput({ onSend, replyTo, onCancelReply, disabled }: Props) {
+export function ChatInput({ onSend, replyTo, onCancelReply, disabled, errorMsg, onClearError }: Props) {
   const [input, setInput] = useState('')
 
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -45,10 +47,16 @@ export function ChatInput({ onSend, replyTo, onCancelReply, disabled }: Props) {
         </div>
       )}
 
-      <div className="flex items-end gap-2 px-4 py-3">
+      <div className="flex items-end gap-2 px-4 py-3 relative">
+        {/* 违禁词错误提示 */}
+        {errorMsg && (
+          <p className="absolute -top-5 left-0 right-0 font-ui text-[11px] text-red-500 px-1 truncate">
+            {errorMsg}
+          </p>
+        )}
         <textarea
           value={input}
-          onChange={e => setInput(e.target.value)}
+          onChange={e => { setInput(e.target.value); onClearError?.() }}
           onKeyDown={handleKeyDown}
           placeholder="メッセージを入力… (Enter で送信)"
           disabled={disabled}

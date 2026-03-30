@@ -5,6 +5,7 @@ import { ThreadDetailPage } from './forum/ThreadDetailPage'
 import { MyPage } from './mypage/MyPage'    // MyPage: 个人中心（握手会记录等）
 import { ChatPage } from './chat/ChatPage'  // ChatPage: リアルタイムチャット
 import { BottomTabBar } from './components/BottomTabBar'  // BottomTabBar: 全局底部导航
+import { BookmarkListPage } from './bookmarks/BookmarkListPage'  // BookmarkListPage: 収藏帖子列表
 
 // 带 Bottom Tab Bar 的页面布局
 function MainLayout() {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/board/:slug"                   element={<ThreadListPage />} />
           <Route path="/board/:slug/thread/:threadId"  element={<ThreadDetailPage />} />
           <Route path="/chat"                          element={<ChatPage />} />
+          <Route path="/bookmarks"                     element={<BookmarkListPage />} />
         </Route>
 
         {/* 无 Bottom Tab Bar 的独立页面 */}

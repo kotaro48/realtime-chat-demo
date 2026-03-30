@@ -16,6 +16,8 @@ interface AuthPayload {
   email: string;
 }
 
+const BANNED_WORDS = ['バカ', 'アホ', 'クソ', '死ね', '殺す', 'うざい', 'きもい'];
+
 @WebSocketGateway({
   cors: { origin: '*' },
   namespace: '/chat',
@@ -81,6 +83,11 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const userId  = client.data.userId as string;
     const content = (payload.content ?? '').trim();
     if (!content) return;
+
+    if (BANNED_WORDS.some(w => content.includes(w))) {
+      client.emit('chat:error', { code: 'BANNED_WORD', message: '不適切な言葉が含まれています' });
+      return;
+    }
 
     const message = await this.chatService.saveMessage(
       payload.roomId,

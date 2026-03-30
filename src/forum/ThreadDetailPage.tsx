@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { ThumbsDown } from 'lucide-react'  // lucide-react: 倒喝彩图标
+import { ThumbsDown, Heart } from 'lucide-react'  // lucide-react: 倒喝彩图标、收藏心形图标
 import { useParams, useNavigate } from 'react-router-dom'  // react-router-dom: URL参数和跳转
 import { Sidebar } from '../components/Sidebar'  // Sidebar: 左滑侧边栏，含全局导航
 import { getUser, authHeaders, type AuthUser } from '../lib/auth'  // auth: 读取登录态和 JWT
@@ -238,6 +238,7 @@ export function ThreadDetailPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(getUser)
   const [authOpen, setAuthOpen] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
   // loadPosts：只刷新帖子列表，供下拉刷新复用
@@ -246,18 +247,35 @@ export function ThreadDetailPage() {
     setPosts(data)
   }, [threadId])
 
-  // 初始加载：同时拉取帖子和版块标题
+  // 初始加载：同时拉取帖子、版块标题、收藏状态
   useEffect(() => {
-    Promise.all([
+    const requests: Promise<unknown>[] = [
       fetch(`/api/boards/${slug}/threads`).then(r => r.json()),
       fetch(`/api/threads/${threadId}/posts`).then(r => r.json()),
-    ]).then(([threads, postsData]) => {
-      const thread = threads.find((t: { id: string; title: string }) => t.id === threadId)
+    ]
+    // 已登录才拉收藏列表
+    if (getUser()) {
+      requests.push(fetch('/api/bookmarks', { headers: authHeaders() }).then(r => r.json()))
+    }
+    Promise.all(requests).then(([threads, postsData, bookmarks]) => {
+      const thread = (threads as { id: string; title: string }[]).find(t => t.id === threadId)
       if (thread) setTitle(thread.title)
-      setPosts(postsData)
+      setPosts(postsData as Post[])
+      if (bookmarks) {
+        const ids = new Set((bookmarks as { thread: { id: string } }[]).map(b => b.thread.id))
+        setIsBookmarked(ids.has(threadId!))
+      }
       setLoading(false)
     })
   }, [slug, threadId])
+
+  const toggleBookmark = () => {
+    if (!user) { setAuthOpen(true); return }
+    const method = isBookmarked ? 'DELETE' : 'POST'
+    setIsBookmarked(!isBookmarked)  // 乐观更新
+    fetch(`/api/bookmarks/${threadId}`, { method, headers: authHeaders() })
+      .catch(() => setIsBookmarked(isBookmarked))  // 失败回滚
+  }
 
   const handleSubmit = () => {
     if (!input.trim() || submitting || !user) return
@@ -299,6 +317,19 @@ export function ThreadDetailPage() {
           <span className="font-mono text-[11px] text-ds-text-4 shrink-0">
             {posts.length} レス
           </span>
+          {/* 収藏按钮：已收藏时 accent 填充，未收藏时灰色描边 */}
+          <button
+            onClick={toggleBookmark}
+            className="w-9 h-9 flex items-center justify-center hover:bg-bg-2 rounded-sm shrink-0"
+            aria-label={isBookmarked ? '収藏を解除' : '収藏する'}
+          >
+            <Heart
+              className="w-5 h-5"
+              strokeWidth={1.5}
+              color={isBookmarked ? 'var(--color-ds-accent)' : 'var(--color-ds-text-4)'}
+              fill={isBookmarked ? 'var(--color-ds-accent)' : 'none'}
+            />
+          </button>
           <button
             onClick={() => setSidebarOpen(true)}
             className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"

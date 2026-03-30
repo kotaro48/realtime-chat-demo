@@ -9,6 +9,7 @@ import { PostModule } from './post/post.module';
 import { HandshakeModule } from './handshake/handshake.module';
 import { SyncModule } from './sync/sync.module';
 import { ChatModule } from './chat/chat.module';
+import { BookmarkModule } from './bookmark/bookmark.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChatModule } from './chat/chat.module';
     HandshakeModule,
     SyncModule,
     ChatModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService],

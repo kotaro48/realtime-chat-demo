@@ -28,6 +28,7 @@ model User {
   handshakeEvents  HandshakeEvent[]
   handshakeTickets HandshakeTicket[]
   watchedMembers   UserMemberWatch[]
+  bookmarks        ThreadBookmark[]
 }
 
 enum Role {
@@ -56,9 +57,10 @@ model Thread {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  board  Board  @relation(fields: [boardId], references: [id])
-  author User   @relation(fields: [authorId], references: [id])
-  posts  Post[]
+  board     Board            @relation(fields: [boardId], references: [id])
+  author    User             @relation(fields: [authorId], references: [id])
+  posts     Post[]
+  bookmarks ThreadBookmark[]
 }
 
 // ─── 回复（论坛楼层）──────────────────────────────────────
@@ -218,4 +220,17 @@ model UserMemberWatch {
   sortOrder Int    @default(0)
 
   @@id([userId, memberId])
+}
+
+// 帖子收藏
+model ThreadBookmark {
+  userId    String
+  threadId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  thread Thread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@id([userId, threadId])
+  @@index([userId])
 }
