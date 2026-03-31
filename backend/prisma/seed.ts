@@ -88,7 +88,7 @@ async function main() {
     update: {},
     create: {
       id: 'seed-thread-1',
-      title: '山下美月 卒業コンサート 感想スレ',
+      title: 'ジャニア　鈴木　田口 感想スレ',
       boardId: generalBoard.id,
       authorId: tomo.id,
     },
@@ -101,93 +101,31 @@ async function main() {
     create: {
       id: 'seed-post-1',
       content:
-        '昨日のコンサート本当に最高だった。最後の「君は僕だ」で泣いてしまいました。\nセンターを務めた美月さん、本当にお疲れ様でした。7年間ありがとう。',
+        '卒業お願い',
       threadId: thread1.id,
       authorId: tomo.id,
     },
   })
 
-  const post2 = await prisma.post.upsert({
+  await prisma.post.upsert({
     where: { id: 'seed-post-2' },
     update: {},
     create: {
       id: 'seed-post-2',
       content:
-        'わかりすぎる。アンコールの演出も素晴らしかったですよね。スタンドのペンライトがピンク一色になった瞬間、鳥肌が止まらなかった。',
+        '裏山しい',
       threadId: thread1.id,
       authorId: momoka.id,
       replyToId: post1.id,
     },
   })
 
-  await prisma.post.upsert({
-    where: { id: 'seed-post-3' },
-    update: {},
-    create: {
-      id: 'seed-post-3',
-      content:
-        '運営のセトリ選びが今回は本当によかった。初期の曲から最新シングルまでバランスよく入ってたし、ファンへのメッセージを感じる構成でした。',
-      threadId: thread1.id,
-      authorId: karin.id,
-    },
-  })
+  
 
-  const thread2 = await prisma.thread.upsert({
-    where: { id: 'seed-thread-2' },
-    update: {},
-    create: {
-      id: 'seed-thread-2',
-      title: '【速報】53rd シングル選抜発表まとめ',
-      boardId: generalBoard.id,
-      authorId: momoka.id,
-    },
-  })
 
-  await prisma.post.upsert({
-    where: { id: 'seed-post-4' },
-    update: {},
-    create: {
-      id: 'seed-post-4',
-      content:
-        '選抜メンバー発表されましたね。今回の構成について皆さんどう思いますか？個人的には新センターの抜擢が意外でした。',
-      threadId: thread2.id,
-      authorId: momoka.id,
-    },
-  })
-
-  // ── AKB48 成员种子数据 ────────────────────────────────────
-  const memberData = [
-    // Team A
-    { id: 'member-yui',     name: '小栗有以',   nameKana: 'おぐりゆい',     team: 'Team A' },
-    { id: 'member-yurina',  name: '行天優莉奈', nameKana: 'ぎょうてんゆりな', team: 'Team A' },
-    { id: 'member-seina',   name: '福岡聖菜',   nameKana: 'ふくおかせいな', team: 'Team A' },
-    { id: 'member-maho',    name: '大盛真歩',   nameKana: 'おおもりまほ',   team: 'Team A' },
-    { id: 'member-ayami',   name: '長友彩海',   nameKana: 'ながともあやみ', team: 'Team A' },
-    // Team K
-    { id: 'member-kurumi',  name: '鈴木くるみ', nameKana: 'すずきくるみ',   team: 'Team K' },
-    // Team B
-    { id: 'member-kasumi',  name: '工藤華純',   nameKana: 'くどうかすみ',   team: 'Team B' },
-    { id: 'member-saho',    name: '岩立沙穂',   nameKana: 'いわたてさほ',   team: 'Team B' },
-    // Team 4
-    { id: 'member-mizuki',  name: '山内瑞葵',   nameKana: 'やまうちみずき', team: 'Team 4' },
-    { id: 'member-miu',     name: '下尾みう',   nameKana: 'しもおみう',     team: 'Team 4' },
-    { id: 'member-haruka4', name: '坂川陽香',   nameKana: 'さかがわはるか', team: 'Team 4' },
-  ]
-
-  for (const m of memberData) {
-    await prisma.member.upsert({
-      where: { id: m.id },
-      update: { name: m.name, nameKana: m.nameKana, team: m.team },
-      create: m,
-    })
-  }
-
-  console.log('Members created:', memberData.length)
 
   // thread の updatedAt を post に合わせて更新
   await prisma.thread.update({ where: { id: thread1.id }, data: { updatedAt: new Date() } })
-  await prisma.thread.update({ where: { id: thread2.id }, data: { updatedAt: new Date() } })
-
   console.log('Threads & posts created.')
   console.log('Seed complete.')
 }
