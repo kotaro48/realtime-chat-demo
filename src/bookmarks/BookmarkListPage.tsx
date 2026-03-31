@@ -33,7 +33,8 @@ export function BookmarkListPage() {
     if (!user) { setLoading(false); return }
     fetch('/api/bookmarks', { headers: authHeaders() })
       .then(r => r.json())
-      .then(data => { setBookmarks(data); setLoading(false) })
+      .then(data => { setBookmarks(Array.isArray(data) ? data : []); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
