@@ -20,7 +20,7 @@ export function MyPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-page-bg">
+    <div className="h-dvh flex flex-col bg-page-bg">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Header */}
