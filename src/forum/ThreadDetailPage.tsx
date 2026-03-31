@@ -485,6 +485,8 @@ export function ThreadDetailPage() {
           )}
         </div>
       </footer>
+      {/* BottomTabBar 占位：防止回复框被固定底部导航遮挡 */}
+      <div className="h-[52px] shrink-0" />
     </div>
   )
 }
