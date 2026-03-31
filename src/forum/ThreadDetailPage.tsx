@@ -298,8 +298,8 @@ export function ThreadDetailPage() {
   }
 
   return (
-    // h-screen + flex-col: header固定 + main滚动 + footer固定
-    <div className="h-screen bg-page-bg flex flex-col">
+    // h-dvh + flex-col: header固定 + main滚动 + footer固定（h-dvh 适配移动端动态视口）
+    <div className="h-dvh bg-page-bg flex flex-col">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       {/* Header — 全宽 */}
