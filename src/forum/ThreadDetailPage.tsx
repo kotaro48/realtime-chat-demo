@@ -257,16 +257,18 @@ export function ThreadDetailPage() {
     if (getUser()) {
       requests.push(fetch('/api/bookmarks', { headers: authHeaders() }).then(r => r.json()))
     }
-    Promise.all(requests).then(([threads, postsData, bookmarks]) => {
-      const thread = (threads as { id: string; title: string }[]).find(t => t.id === threadId)
-      if (thread) setTitle(thread.title)
-      setPosts(postsData as Post[])
-      if (bookmarks) {
-        const ids = new Set((bookmarks as { thread: { id: string } }[]).map(b => b.thread.id))
-        setIsBookmarked(ids.has(threadId!))
-      }
-      setLoading(false)
-    })
+    Promise.all(requests)
+      .then(([threads, postsData, bookmarks]) => {
+        const thread = (threads as { id: string; title: string }[]).find(t => t.id === threadId)
+        if (thread) setTitle(thread.title)
+        setPosts(postsData as Post[])
+        if (bookmarks) {
+          const ids = new Set((bookmarks as { thread: { id: string } }[]).map(b => b.thread.id))
+          setIsBookmarked(ids.has(threadId!))
+        }
+      })
+      .catch(() => {}) // 任一请求失败时静默处理，不阻塞页面
+      .finally(() => setLoading(false))
   }, [slug, threadId])
 
   const toggleBookmark = () => {
