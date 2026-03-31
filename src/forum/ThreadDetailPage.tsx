@@ -156,7 +156,7 @@ function ReactionBar({ postId, onReply, isOP }: { postId: string; onReply: () =>
       {/* 引用 — OP（1レス目）には表示しない */}
       {!isOP && (
         <button
-          className="flex items-center gap-1 px-2 py-1 rounded-sm font-ui text-[12px] text-ds-text-4 hover:text-ds-text hover:bg-bg-2"
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded-sm font-ui text-[11px] text-ds-text-4 hover:text-ds-text hover:bg-bg-2"
           onClick={onReply}
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
@@ -169,7 +169,7 @@ function ReactionBar({ postId, onReply, isOP }: { postId: string; onReply: () =>
       {/* 点赞 */}
       <button
         onClick={() => react('like')}
-        className={`flex items-center gap-1 px-2 py-1 rounded-sm font-ui text-[12px] transition-colors ${liked ? 'text-ds-accent bg-ds-accent-bg' : 'text-ds-text-4 hover:bg-bg-2 hover:text-ds-text'} ${pop === 'like' ? 'reaction-pop' : ''}`}
+        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-sm font-ui text-[11px] transition-colors ${liked ? 'text-ds-accent bg-ds-accent-bg' : 'text-ds-text-4 hover:bg-bg-2 hover:text-ds-text'} ${pop === 'like' ? 'reaction-pop' : ''}`}
       >
         <svg className="w-3.5 h-3.5" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"/>
@@ -180,7 +180,7 @@ function ReactionBar({ postId, onReply, isOP }: { postId: string; onReply: () =>
       {/* 倒喝彩 */}
       <button
         onClick={() => react('dislike')}
-        className={`flex items-center gap-1 px-2 py-1 rounded-sm font-ui text-[12px] transition-colors ${disliked ? 'text-ds-text bg-bg-3' : 'text-ds-text-4 hover:bg-bg-2 hover:text-ds-text'} ${pop === 'dislike' ? 'reaction-pop' : ''}`}
+        className={`flex items-center gap-1 px-1.5 py-0.5 rounded-sm font-ui text-[11px] transition-colors ${disliked ? 'text-ds-text bg-bg-3' : 'text-ds-text-4 hover:bg-bg-2 hover:text-ds-text'} ${pop === 'dislike' ? 'reaction-pop' : ''}`}
       >
         <ThumbsDown className="w-3.5 h-3.5" strokeWidth={1.5} fill={disliked ? 'currentColor' : 'none'} />
         {r.dislikes.length > 0 && <span>{r.dislikes.length}</span>}
@@ -346,8 +346,8 @@ export function ThreadDetailPage() {
       {/* 内容区 + 右侧栏 */}
       <div className="flex-1 overflow-hidden flex min-h-0">
         {/* PullToRefresh 替换原来的 <main>，内部自带可滚动容器 */}
-        <PullToRefresh onRefresh={loadPosts} className="flex-1">
-        <div className="max-w-[860px] mx-auto bg-bg min-h-full px-5 py-4 space-y-0">
+        <PullToRefresh onRefresh={loadPosts} className="flex-1 min-h-0">
+        <div className="max-w-[860px] mx-auto bg-bg min-h-full px-5 pt-2 pb-4 space-y-0">
           {loading ? (
             <p className="text-[13.5px] text-ds-text-3 py-8">読み込み中…</p>
           ) : (
@@ -356,14 +356,14 @@ export function ThreadDetailPage() {
               return (
                 <div
                   key={post.id}
-                  className={`flex gap-2.5 border-b border-ds-border-2 last:border-b-0 post-enter ${
-                    isOP ? 'py-3 px-1 bg-bg-2 -mx-5 px-5' : 'py-2.5'
+                  className={`flex gap-2 border-b border-ds-border-2 last:border-b-0 post-enter ${
+                    isOP ? 'py-2 bg-bg-2 -mx-5 px-5' : 'py-1.5'
                   }`}
                 >
                   {/* 头像 */}
                   <div
                     className={`rounded-full shrink-0 flex items-center justify-center font-ui font-medium text-white border border-ds-border-2 ${
-                      isOP ? 'w-8 h-8 text-[13px]' : 'w-7 h-7 text-[12px]'
+                      isOP ? 'w-7 h-7 text-[12px]' : 'w-6 h-6 text-[11px]'
                     }`}
                     style={{ backgroundColor: post.author.avatarColor }}
                   >
@@ -375,8 +375,8 @@ export function ThreadDetailPage() {
 
                   <div className="flex-1 min-w-0">
                     {/* 作者行 */}
-                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
-                      <span className={`font-ui font-medium text-ds-text-2 ${isOP ? 'text-[13px]' : 'text-[12px]'}`}>
+                    <div className="flex items-center gap-1.5 mb-0 flex-wrap">
+                      <span className={`font-ui font-medium text-ds-text-2 ${isOP ? 'text-[12px]' : 'text-[11.5px]'}`}>
                         {post.author.nickname}
                       </span>
                       {isOP ? (
@@ -384,11 +384,11 @@ export function ThreadDetailPage() {
                           スレ主
                         </span>
                       ) : (
-                        <span className="font-mono text-[11px] text-ds-text-4">
+                        <span className="font-mono text-[10px] text-ds-text-4">
                           ＃{index + 1}
                         </span>
                       )}
-                      <span className="font-mono text-[11px] text-ds-text-4 ml-auto">
+                      <span className="font-mono text-[10px] text-ds-text-4 ml-auto">
                         {formatTime(post.createdAt)}
                       </span>
                     </div>
