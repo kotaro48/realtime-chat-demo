@@ -97,7 +97,7 @@ function DayModal({ dateKey, events, onClose }: {
         </div>
 
         <div className="overflow-y-auto flex-1 px-4 py-3 flex flex-col gap-2">
-          {events.map(ev => {
+          {events.filter((ev, idx, arr) => arr.findIndex(e => e.title === ev.title) === idx).map(ev => {
             const conf    = getTypeConfig(ev)
             const timeStr = toTimeStr(ev.date)
             return (
