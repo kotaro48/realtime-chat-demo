@@ -37,7 +37,7 @@ function QuoteChain({ replyToId, allPosts }: { replyToId: string; allPosts: Post
   const visible = hidden > 0 ? chain.slice(hidden) : chain
 
   return (
-    <div className="mb-2 space-y-1">
+    <div className="mb-1.5 space-y-0.5">
       {hidden > 0 && (
         <button
           onClick={() => setExpanded(true)}
@@ -85,7 +85,7 @@ function isImageUrl(text: string): boolean {
 // 帖子正文：逐行扫描，图片URL渲染为img
 function PostContent({ content }: { content: string }) {
   return (
-    <div className="text-[15px] leading-relaxed text-ds-text space-y-1">
+    <div className="text-[13.5px] leading-snug text-ds-text space-y-0.5">
       {content.split('\n').map((line, i) =>
         isImageUrl(line) ? (
           <img
@@ -152,7 +152,7 @@ function ReactionBar({ postId, onReply, isOP }: { postId: string; onReply: () =>
   }
 
   return (
-    <div className="mt-2 flex flex-wrap items-center gap-0.5">
+    <div className="mt-1 flex flex-wrap items-center gap-0.5">
       {/* 引用 — OP（1レス目）には表示しない */}
       {!isOP && (
         <button
@@ -356,14 +356,14 @@ export function ThreadDetailPage() {
               return (
                 <div
                   key={post.id}
-                  className={`flex gap-3 border-b border-ds-border-2 last:border-b-0 post-enter ${
-                    isOP ? 'py-5 px-1 bg-bg-2 -mx-5 px-5' : 'py-4'
+                  className={`flex gap-2.5 border-b border-ds-border-2 last:border-b-0 post-enter ${
+                    isOP ? 'py-3 px-1 bg-bg-2 -mx-5 px-5' : 'py-2.5'
                   }`}
                 >
                   {/* 头像 */}
                   <div
                     className={`rounded-full shrink-0 flex items-center justify-center font-ui font-medium text-white border border-ds-border-2 ${
-                      isOP ? 'w-10 h-10 text-[15px]' : 'w-9 h-9 text-[14px]'
+                      isOP ? 'w-8 h-8 text-[13px]' : 'w-7 h-7 text-[12px]'
                     }`}
                     style={{ backgroundColor: post.author.avatarColor }}
                   >
@@ -375,8 +375,8 @@ export function ThreadDetailPage() {
 
                   <div className="flex-1 min-w-0">
                     {/* 作者行 */}
-                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                      <span className={`font-ui font-medium text-ds-text-2 ${isOP ? 'text-[14px]' : 'text-[13px]'}`}>
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                      <span className={`font-ui font-medium text-ds-text-2 ${isOP ? 'text-[13px]' : 'text-[12px]'}`}>
                         {post.author.nickname}
                       </span>
                       {isOP ? (
@@ -399,7 +399,7 @@ export function ThreadDetailPage() {
                     )}
 
                     {/* 正文 */}
-                    <div className={isOP ? 'text-[15.5px] leading-relaxed' : ''}>
+                    <div className={isOP ? 'text-[14px] leading-snug' : ''}>
                       <PostContent content={post.content} />
                     </div>
 
