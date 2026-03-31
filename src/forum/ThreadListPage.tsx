@@ -141,7 +141,7 @@ export function ThreadListPage() {
       </header>
 
       {/* 内容列 + 右侧栏 */}
-      <div className="max-w-[1060px] mx-auto px-5 pb-24 flex gap-6 items-start">
+      <div className="max-w-[1060px] mx-auto px-5 pb-[52px] flex gap-6 items-start">
         <main className="flex-1 min-w-0 bg-bg">
           {/* Breadcrumb */}
           <div className="flex items-center gap-1.5 py-4 font-ui text-[12px] text-ds-text-4">
@@ -190,22 +190,6 @@ export function ThreadListPage() {
           <RightSidebar activeSlug={slug} />
         </aside>
       </div>
-
-      {/* Bottom Tab Bar — 全宽 */}
-      <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-bg border-t border-ds-border-2 flex z-50">
-        <button className="flex-1 flex flex-col items-center justify-center gap-0.5" onClick={() => navigate('/')}>
-          <svg className="w-5 h-5 text-ds-text-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5"/>
-          </svg>
-          <span className="font-ui text-[11px] font-medium text-ds-text-4">掲示板</span>
-        </button>
-        <button className="flex-1 flex flex-col items-center justify-center gap-0.5">
-          <svg className="w-5 h-5 text-ds-text-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"/>
-          </svg>
-          <span className="font-ui text-[11px] font-medium text-ds-text-4">チャット</span>
-        </button>
-      </nav>
 
       <AuthModal
         open={authOpen}

@@ -426,8 +426,8 @@ export function ThreadDetailPage() {
         onSuccess={me => { setUser(me); setAuthOpen(false) }}
       />
 
-      {/* 底部回复框 — 全宽 */}
-      <footer className="shrink-0 bg-bg border-t border-ds-border-2">
+      {/* 底部回复框 — 全宽，pb-[52px] 为 BottomTabBar 留空间 */}
+      <footer className="shrink-0 bg-bg border-t border-ds-border-2 pb-[52px]">
         <div className="max-w-[1060px] mx-auto px-5 py-3">
           {/* 引用预览 */}
           {replyTo && (
@@ -485,8 +485,6 @@ export function ThreadDetailPage() {
           )}
         </div>
       </footer>
-      {/* BottomTabBar 占位：防止回复框被固定底部导航遮挡 */}
-      <div className="h-[52px] shrink-0" />
     </div>
   )
 }
