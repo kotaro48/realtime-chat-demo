@@ -1,0 +1,273 @@
+import { useState } from 'react'
+import { motion } from 'framer-motion'  // framer-motion: 3D card pull animation
+
+// ── Types ─────────────────────────────────────────────────────────────────
+
+export interface PhotoCardData {
+  id: string
+  memberName: string    // e.g. "柏木 由紀"
+  romaji: string        // e.g. "YUKI.K"
+  edition: string       // e.g. "2026 Spring"
+  gradientFrom: string  // CSS color for gradient start
+  gradientTo: string    // CSS color for gradient end
+  team: string          // e.g. "Team B"
+}
+
+// ── Card face content ──────────────────────────────────────────────────────
+
+function CardFace({ card }: { card: PhotoCardData }) {
+  return (
+    <div
+      className="w-full h-full flex flex-col relative overflow-hidden"
+      style={{
+        background: `
+          linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.12) 100%),
+          radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.25) 0%, transparent 50%),
+          linear-gradient(160deg, ${card.gradientFrom} 0%, ${card.gradientTo} 100%)
+        `,
+      }}
+    >
+      {/* Edition label */}
+      <div className="px-2.5 pt-2.5 flex items-center justify-between">
+        <span
+          className="font-mono text-[8px] tracking-[0.15em] uppercase"
+          style={{ color: 'rgba(255,255,255,0.65)' }}
+        >
+          {card.edition}
+        </span>
+        <span
+          className="font-mono text-[8px] tracking-wider"
+          style={{ color: 'rgba(255,255,255,0.5)' }}
+        >
+          AKB48
+        </span>
+      </div>
+
+      {/* Photo area: abstract radial highlight suggesting a portrait */}
+      <div className="flex-1 flex items-center justify-center relative">
+        {/* Outer glow ring */}
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 80, height: 80,
+            background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+          }}
+        />
+        {/* Inner highlight (simulates face/light source) */}
+        <div
+          className="rounded-full"
+          style={{
+            width: 52, height: 64,
+            background: 'radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 60%, transparent 100%)',
+            boxShadow: '0 0 20px rgba(255,255,255,0.15)',
+          }}
+        />
+      </div>
+
+      {/* Name area */}
+      <div
+        className="px-3 py-2"
+        style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(4px)' }}
+      >
+        <p className="font-jp text-white font-bold text-[13px] leading-tight tracking-wide">
+          {card.memberName}
+        </p>
+        <div className="flex items-center justify-between mt-0.5">
+          <span className="font-mono text-[9px] tracking-widest" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {card.romaji}
+          </span>
+          <span className="font-ui text-[9px]" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            {card.team}
+          </span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Card back design ───────────────────────────────────────────────────────
+
+function CardBack({ card }: { card: PhotoCardData }) {
+  return (
+    <div
+      className="w-full h-full"
+      style={{
+        background: `linear-gradient(135deg, ${card.gradientFrom}33, ${card.gradientTo}33)`,
+        border: '1px solid rgb(var(--border))',
+        borderRadius: 8,
+      }}
+    />
+  )
+}
+
+// ── PhotoCardBox ──────────────────────────────────────────────────────────
+// Shows a stack of cards in a physical sleeve holder.
+// Desktop: hover to pull the front card up from the sleeve.
+// Mobile:  tap to toggle.
+
+interface Props {
+  cards: PhotoCardData[]   // [0] = front card, [1..] = back cards (max 3 shown)
+  label?: string           // optional label below the sleeve
+}
+
+// Sleeve dimensions (the physical holder)
+const CARD_W = 140
+const CARD_H = 196
+const CONTAINER_W = 172   // extra space for back card offset
+const CONTAINER_H = 256   // card + sleeve bottom
+const SLEEVE_H = 68       // how much of the sleeve is visible below the card opening
+
+// How many px of the card are inside the sleeve at rest
+const SLEEVE_OVERLAP = 28  // card bottom is 28px inside sleeve
+
+// How far the card pulls out on hover
+const PULL_DISTANCE = 72
+
+export function PhotoCardBox({ cards, label }: Props) {
+  const [mobileRevealed, setMobileRevealed] = useState(false)
+
+  const mainCard = cards[0]
+  const backCards = cards.slice(1, 3)
+
+  // Back card offsets: each card sticks out slightly to the right/down
+  const backOffsets = [
+    { dx: 12, dy: 8, rotate: 3 },
+    { dx: 6,  dy: 4, rotate: 1.5 },
+  ]
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {/* Perspective wrapper — enables 3D transform on child */}
+      <div style={{ perspective: '700px' }}>
+        {/*
+          Container: relative positioning anchor.
+          Width/height accommodate the back card offsets.
+        */}
+        <div
+          className="relative select-none"
+          style={{ width: CONTAINER_W, height: CONTAINER_H }}
+          // Mobile tap to toggle
+          onClick={() => {
+            if (window.matchMedia('(hover: none)').matches) {
+              setMobileRevealed(v => !v)
+            }
+          }}
+        >
+          {/* ── Back cards (static, behind main card) ─────────────── */}
+          {backCards.map((card, i) => {
+            const offset = backOffsets[i]
+            return (
+              <div
+                key={card.id}
+                className="absolute overflow-hidden rounded-md"
+                style={{
+                  width: CARD_W,
+                  height: CARD_H,
+                  top: offset.dy,
+                  left: offset.dx,
+                  zIndex: i + 1,
+                  transform: `rotate(${offset.rotate}deg)`,
+                  opacity: 0.55,
+                }}
+              >
+                <CardBack card={card} />
+              </div>
+            )
+          })}
+
+          {/* ── Main card (animated) ──────────────────────────────── */}
+          {/*
+            z-index 10: above back cards (z 1,2), below sleeve front face (z 20).
+            transformOrigin: 'bottom center' — rotation pivots at sleeve opening edge.
+            The card starts with SLEEVE_OVERLAP px hidden behind sleeve front face.
+          */}
+          <motion.div
+            className="absolute overflow-hidden rounded-md cursor-pointer"
+            style={{
+              width: CARD_W,
+              height: CARD_H,
+              top: 0,
+              left: 0,
+              zIndex: 10,
+              transformOrigin: 'bottom center',
+              // Real photo cards have a subtle shadow from the sleeve holding them
+              boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+            }}
+            // Desktop: hover-driven
+            whileHover={{
+              y: -PULL_DISTANCE,
+              rotateX: -11,
+              scale: 1.03,
+              boxShadow: '0 16px 40px rgba(0,0,0,0.28)',
+            }}
+            // Mobile: state-driven
+            animate={
+              window.matchMedia('(hover: none)').matches
+                ? {
+                    y: mobileRevealed ? -PULL_DISTANCE : 0,
+                    rotateX: mobileRevealed ? -11 : 0,
+                    scale: mobileRevealed ? 1.03 : 1,
+                  }
+                : undefined
+            }
+            transition={{
+              type: 'tween',
+              ease: [0.25, 0, 0, 1],
+              duration: 0.30,
+            }}
+          >
+            <CardFace card={mainCard} />
+          </motion.div>
+
+          {/* ── Sleeve front face ─────────────────────────────────── */}
+          {/*
+            z-index 20: renders OVER the card.
+            Covers the bottom SLEEVE_OVERLAP px of the card at rest,
+            creating the illusion that the card is inside the sleeve.
+            The card slides upward from behind this element on hover.
+          */}
+          <div
+            className="absolute left-0 right-0 bottom-0 pointer-events-none"
+            style={{
+              height: SLEEVE_H,
+              zIndex: 20,
+              // Two-layer look: the sleeve opening shadow at top, then the sleeve body
+              background: `
+                linear-gradient(to bottom,
+                  rgb(var(--bg-2)) 0%,
+                  rgb(var(--bg)) 100%
+                )
+              `,
+              borderTop: '2px solid rgb(var(--border))',
+              borderLeft: '1px solid rgb(var(--border))',
+              borderRight: '1px solid rgb(var(--border))',
+              borderBottom: '1px solid rgb(var(--border))',
+              borderRadius: '0 0 10px 10px',
+              // Inset shadow: suggests depth inside the sleeve
+              boxShadow: `
+                inset 0 4px 8px rgba(0,0,0,0.07),
+                inset 0 1px 2px rgba(0,0,0,0.04)
+              `,
+            }}
+          >
+            {/* Slot opening highlight line */}
+            <div
+              className="absolute top-0 left-4 right-4"
+              style={{
+                height: 1,
+                background: 'linear-gradient(to right, transparent, rgba(0,0,0,0.06), transparent)',
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Optional label below the box */}
+      {label && (
+        <p className="font-mono text-[10px] tracking-widest uppercase text-ds-text-4">
+          {label}
+        </p>
+      )}
+    </div>
+  )
+}
