@@ -1,3 +1,4 @@
+import { useState } from 'react'  // react: 状态管理
 import { useNavigate, useLocation } from 'react-router-dom'  // react-router-dom: 路由跳转和当前路径
 
 const TABS = [
@@ -27,35 +28,94 @@ const TABS = [
   },
 ]
 
+// 三点菜单里的额外页面入口
+const MORE_ITEMS = [
+  { path: '/mypage',     label: 'マイページ' },
+  { path: '/photo-demo', label: 'デジタル生写真' },
+  { path: '/venue',      label: '握手会地図' },
+]
+
 export function BottomTabBar() {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const [moreOpen, setMoreOpen] = useState(false)
+
+  const moreActive = MORE_ITEMS.some(item => pathname.startsWith(item.path))
+
+  function handleMoreItem(path: string) {
+    setMoreOpen(false)
+    navigate(path)
+  }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-bg border-t border-ds-border-2 flex z-50">
-      {TABS.map(tab => {
-        const active = tab.match(pathname)
-        return (
-          <button
-            key={tab.path}
-            onClick={() => navigate(tab.path)}
-            className="flex-1 flex flex-col items-center justify-center gap-0.5"
-          >
-            <svg
-              className={`w-5 h-5 ${active ? 'text-ds-accent' : 'text-ds-text-4'}`}
-              fill={active && tab.path === '/bookmarks' ? 'currentColor' : 'none'}
-              stroke="currentColor"
-              strokeWidth={1.5}
-              viewBox="0 0 24 24"
+    <>
+      {/* 点击遮罩关闭菜单 */}
+      {moreOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setMoreOpen(false)}
+        />
+      )}
+
+      {/* 三点菜单弹出层 */}
+      {moreOpen && (
+        <div className="fixed bottom-[60px] right-2 z-50 bg-bg border border-ds-border rounded-lg shadow-sm overflow-hidden min-w-[148px]">
+          {MORE_ITEMS.map(item => (
+            <button
+              key={item.path}
+              onClick={() => handleMoreItem(item.path)}
+              className="w-full text-left px-4 py-3 font-ui text-[14px] text-ds-text hover:bg-bg-2 active:bg-bg-3 transition-colors duration-150 border-b border-ds-border-2 last:border-b-0"
             >
-              {tab.icon}
-            </svg>
-            <span className={`font-ui text-[11px] font-medium ${active ? 'text-ds-accent' : 'text-ds-text-4'}`}>
-              {tab.label}
-            </span>
-          </button>
-        )
-      })}
-    </nav>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <nav className="fixed bottom-0 left-0 right-0 h-[52px] bg-bg border-t border-ds-border-2 flex z-50">
+        {TABS.map(tab => {
+          const active = tab.match(pathname)
+          return (
+            <button
+              key={tab.path}
+              onClick={() => navigate(tab.path)}
+              className="flex-1 flex flex-col items-center justify-center gap-0.5"
+            >
+              <svg
+                className={`w-5 h-5 ${active ? 'text-ds-accent' : 'text-ds-text-4'}`}
+                fill={active && tab.path === '/bookmarks' ? 'currentColor' : 'none'}
+                stroke="currentColor"
+                strokeWidth={1.5}
+                viewBox="0 0 24 24"
+              >
+                {tab.icon}
+              </svg>
+              <span className={`font-ui text-[11px] font-medium ${active ? 'text-ds-accent' : 'text-ds-text-4'}`}>
+                {tab.label}
+              </span>
+            </button>
+          )
+        })}
+
+        {/* 三点线 More 按钮 */}
+        <button
+          onClick={() => setMoreOpen(v => !v)}
+          className="flex-1 flex flex-col items-center justify-center gap-0.5"
+        >
+          <svg
+            className={`w-5 h-5 ${moreActive || moreOpen ? 'text-ds-accent' : 'text-ds-text-4'}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.5}
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 12a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm6.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm6.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+          </svg>
+          <span className={`font-ui text-[11px] font-medium ${moreActive || moreOpen ? 'text-ds-accent' : 'text-ds-text-4'}`}>
+            もっと
+          </span>
+        </button>
+      </nav>
+    </>
   )
 }
