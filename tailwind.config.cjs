@@ -6,7 +6,7 @@ module.exports = {
       fontFamily: {
         jp:   ['"Noto Sans JP"', 'sans-serif'],
         ui:   ['"DM Sans"', 'sans-serif'],
-        mono: ['"JetBrains Mono"', 'monospace'],
+        mono: ['"Noto Sans JP"', 'sans-serif'],
         sans: ['"Noto Sans JP"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
