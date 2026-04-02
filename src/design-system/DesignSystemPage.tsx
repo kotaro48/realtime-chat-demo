@@ -5,10 +5,13 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
+import { motion } from 'framer-motion'              // framer-motion: 动效展示
 import { Button } from '@/components/ui/button'    // 微拟物渐变按钮
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'  // 凸起/凹陷卡片
 import { Input } from '@/components/ui/input'      // 凹陷输入框
 import { Badge } from '@/components/ui/badge'      // 渐变徽章
+import { PageWrapper } from '@/components/PageWrapper'  // 页面入场包装器
+import { staggerContainer, staggerItem, hoverLift, tapPress, scaleIn, fadeInUp } from '@/lib/motion'  // Apple Spring 配置
 import { Heart, Send, Star, Plus } from 'lucide-react'  // lucide-react：图标
 
 /* ============================================================
@@ -18,14 +21,15 @@ import { Heart, Send, Star, Plus } from 'lucide-react'  // lucide-react：图标
    ============================================================ */
 export function DesignSystemPage() {
   return (
+    <PageWrapper>
     <div className="min-h-screen bg-background p-6 pb-24">
       <div className="mx-auto max-w-2xl space-y-12">
 
         {/* 页面标题 */}
-        <div className="space-y-1">
+        <motion.div className="space-y-1" variants={fadeInUp} initial="hidden" animate="visible">
           <h1 className="text-2xl font-bold text-foreground">Design System</h1>
-          <p className="text-sm text-muted-foreground">微拟物光影质感 — 渐变 + 3D阴影 + 微交互</p>
-        </div>
+          <p className="text-sm text-muted-foreground">微拟物光影质感 — 渐变 + 3D阴影 + Apple Spring 动效</p>
+        </motion.div>
 
         {/* ---- Button ---- */}
         <section className="space-y-4">
@@ -111,13 +115,81 @@ export function DesignSystemPage() {
             <Badge variant="oshi">HARUKA.S</Badge>
           </div>
           <div className="flex flex-wrap gap-3 items-center">
-            <Badge variant="default"><Star className="h-3 w-3 mr-1" />未读 12</Badge>
+            <Badge variant="default"><Star className="h-3 w-3 mr-1" />未読 12</Badge>
             <Badge variant="default">NEW</Badge>
             <Badge variant="secondary">論文</Badge>
           </div>
         </section>
 
+        {/* ---- Motion ---- */}
+        <section className="space-y-4">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Motion — Apple Spring</h2>
+
+          {/* 错开入场 */}
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">错开入场 stagger（刷新页面查看效果）</p>
+            <motion.div
+              className="grid grid-cols-3 gap-3"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
+              {['Spring', 'Damping', 'Stiffness', 'Mass', 'Inertia', 'Bounce'].map(label => (
+                <motion.div
+                  key={label}
+                  variants={staggerItem}
+                  className="rounded-2xl bg-muted p-3 text-center text-sm font-medium text-foreground"
+                >
+                  {label}
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* 悬停提升 + 点击回弹 */}
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">悬停提升 + 点击回弹（hover / tap）</p>
+            <div className="flex gap-3 flex-wrap">
+              <motion.div
+                whileHover={hoverLift}
+                whileTap={tapPress}
+                className="rounded-2xl text-primary-foreground px-6 py-3 text-sm font-medium cursor-pointer"
+                style={{
+                  background: 'linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, black) 100%)',
+                  boxShadow: '0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent)',
+                }}
+              >
+                Hover me
+              </motion.div>
+              <motion.div
+                whileHover={hoverLift}
+                whileTap={tapPress}
+                className="rounded-2xl border border-border bg-card px-6 py-3 text-sm font-medium cursor-pointer"
+                style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
+              >
+                Tap me
+              </motion.div>
+            </div>
+          </div>
+
+          {/* 弹性缩放 whileInView */}
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">弹性缩放 scaleIn（whileInView 触发）</p>
+            <motion.div
+              variants={scaleIn}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-40px' }}
+              className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
+              style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
+            >
+              滚动到此处触发弹性入场 — stiffness: 400, damping: 25
+            </motion.div>
+          </div>
+        </section>
+
       </div>
     </div>
+    </PageWrapper>
   )
 }

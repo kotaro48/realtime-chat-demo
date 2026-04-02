@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'  // react-router-dom: 路由跳转
+import { motion } from 'framer-motion'          // framer-motion: 列表错开入场动画
 import { MessageSquare, Globe, Handshake, Camera, LayoutGrid } from 'lucide-react'  // lucide-react: 版块图标
 import { Sidebar } from '../components/Sidebar'  // Sidebar: 左滑侧边栏，含全局导航
 import { AuthModal } from '../components/AuthModal'  // AuthModal: 登录/注册弹窗
 import { RightSidebar } from '../components/RightSidebar'  // RightSidebar: 桌面端右侧栏
+import { PageWrapper } from '../components/PageWrapper'  // PageWrapper: 页面入场动画包装器
+import { staggerContainer, staggerItem, hoverLift, tapPress } from '../lib/motion'  // motion: Apple Spring 配置
 import type { AuthUser } from '../lib/auth'  // auth: 用户类型
 
 interface Board {
@@ -42,6 +45,7 @@ export function BoardListPage() {
 
 
   return (
+    <PageWrapper>
     <div className="min-h-screen bg-page-bg">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={() => setUser(null)} />
 
@@ -89,11 +93,19 @@ export function BoardListPage() {
           ) : boards.length === 0 ? (
             <p className="text-[13.5px] text-ds-text-3 py-8">版块暂无内容。</p>
           ) : (
-            <div className="border border-ds-border-2 rounded-md overflow-hidden">
+            <motion.div
+              className="border border-ds-border-2 rounded-md overflow-hidden"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {boards.map(board => (
-                <div
+                <motion.div
                   key={board.id}
-                  className="flex items-center gap-4 px-4 py-[14px] border-b border-ds-border-2 last:border-b-0 hover:bg-bg-2 active:bg-bg-3 cursor-pointer"
+                  variants={staggerItem}
+                  whileHover={hoverLift}
+                  whileTap={tapPress}
+                  className="flex items-center gap-4 px-4 py-[14px] border-b border-ds-border-2 last:border-b-0 hover:bg-bg-2 cursor-pointer"
                   onClick={() => navigate(`/board/${board.slug}`)}
                 >
                   <div className="shrink-0 text-ds-text-3">
@@ -117,9 +129,9 @@ export function BoardListPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5"/>
                     </svg>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </main>
 
@@ -136,5 +148,6 @@ export function BoardListPage() {
         onSuccess={me => { setUser(me); setAuthOpen(false) }}
       />
     </div>
+    </PageWrapper>
   )
 }
