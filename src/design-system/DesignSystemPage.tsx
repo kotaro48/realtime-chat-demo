@@ -12,8 +12,22 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { PageWrapper } from '@/components/PageWrapper'
-import { staggerContainer, staggerItem, hoverLift, tapPress, scaleIn, fadeInUp, gentle } from '@/lib/motion'
+import { hoverLift, tapPress, scaleIn, fadeInUp, gentle } from '@/lib/motion'
 import { Heart, Send, Star, Plus, RotateCcw } from 'lucide-react'
+
+// 展示专用变体 — 比实际用的更夸张，方便肉眼感知
+const demoStagger = {
+  hidden:  { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+}
+const demoStaggerItem = {
+  hidden:  { opacity: 0, y: 48, scale: 0.9 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring', stiffness: 180, damping: 18 } },
+}
+const demoFadeInUp = {
+  hidden:  { opacity: 0, y: 60 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 160, damping: 20 } },
+}
 
 /* ============================================================
    stagger 演示子组件：支持重播
@@ -21,12 +35,17 @@ import { Heart, Send, Star, Plus, RotateCcw } from 'lucide-react'
    ============================================================ */
 function StaggerDemo() {
   const [key, setKey] = useState(0)
-  const labels = ['Spring', 'Damping', 'Stiffness', 'Mass', 'Inertia', 'Bounce']
+  const items = [
+    { label: '第一项', desc: '延迟 0ms' },
+    { label: '第二项', desc: '延迟 120ms' },
+    { label: '第三项', desc: '延迟 240ms' },
+    { label: '第四项', desc: '延迟 360ms' },
+  ]
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">错开入场 — 每项延迟 60ms 依次弹出</p>
+        <p className="text-xs text-muted-foreground">错开入场 — 每项间隔 120ms 从下方弹入</p>
         <button
           onClick={() => setKey(k => k + 1)}
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -37,18 +56,19 @@ function StaggerDemo() {
       </div>
       <motion.div
         key={key}
-        className="grid grid-cols-3 gap-3"
-        variants={staggerContainer}
+        className="space-y-2"
+        variants={demoStagger}
         initial="hidden"
         animate="visible"
       >
-        {labels.map(label => (
+        {items.map(item => (
           <motion.div
-            key={label}
-            variants={staggerItem}
-            className="rounded-2xl bg-muted p-3 text-center text-sm font-medium text-foreground"
+            key={item.label}
+            variants={demoStaggerItem}
+            className="flex items-center justify-between rounded-2xl bg-muted px-4 py-3"
           >
-            {label}
+            <span className="text-sm font-medium text-foreground">{item.label}</span>
+            <span className="text-xs text-muted-foreground">{item.desc}</span>
           </motion.div>
         ))}
       </motion.div>
@@ -105,7 +125,7 @@ function FadeInUpDemo() {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">淡入上移 — y: 24px → 0，同时 opacity: 0 → 1</p>
+        <p className="text-xs text-muted-foreground">淡入上移 — y: 60px → 0，opacity: 0 → 1</p>
         <button
           onClick={() => setKey(k => k + 1)}
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
@@ -116,13 +136,13 @@ function FadeInUpDemo() {
       </div>
       <motion.div
         key={key}
-        variants={fadeInUp}
+        variants={demoFadeInUp}
         initial="hidden"
         animate="visible"
         className="rounded-2xl border border-border bg-card p-4 text-sm text-foreground font-medium"
         style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
       >
-        从下方 24px 处弹入 &nbsp;·&nbsp; spring stiffness: 300, damping: 30
+        从下方 60px 处弹入 &nbsp;·&nbsp; spring stiffness: 160, damping: 20
       </motion.div>
     </div>
   )
