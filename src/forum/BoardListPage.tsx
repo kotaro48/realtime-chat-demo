@@ -45,7 +45,6 @@ export function BoardListPage() {
 
 
   return (
-    <PageWrapper>
     <div className="min-h-screen bg-page-bg">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={() => setUser(null)} />
 
@@ -148,6 +147,5 @@ export function BoardListPage() {
         onSuccess={me => { setUser(me); setAuthOpen(false) }}
       />
     </div>
-    </PageWrapper>
   )
 }
