@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'  // react-router-dom: 登录过期时跳回首页
 import { authHeaders } from '../lib/auth'  // auth: JWT 请求头
 
 // ── 类型定义 ──────────────────────────────────────────────
@@ -289,6 +290,7 @@ const ROW_H = 48   // 行高（px）
 const FIXED_W = 80 // 冻结成员列宽度（px）
 
 export function HandshakeGrid() {
+  const navigate = useNavigate()
   const [grid, setGrid] = useState<GridData | null>(null)
   const [allMembers, setAllMembers] = useState<AllMember[]>([])
   const [loading, setLoading] = useState(true)
@@ -303,8 +305,15 @@ export function HandshakeGrid() {
       fetch('/api/handshake/grid', { headers: authHeaders() }),
       fetch('/api/members'),
     ])
+    // token 过期或未登录时清除本地 auth 状态并跳回首页
+    if (gridRes.status === 401) {
+      localStorage.removeItem('akb48_token')
+      localStorage.removeItem('akb48_user')
+      navigate('/')
+      return
+    }
     const [gridData, membersData] = await Promise.all([gridRes.json(), membersRes.json()])
-    setGrid(gridRes.ok ? gridData : null)
+    setGrid(gridData)
     setAllMembers(Array.isArray(membersData) ? membersData : [])
     setLoading(false)
   }
