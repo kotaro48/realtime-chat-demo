@@ -81,10 +81,10 @@ export const staggerContainer: Variants = {
   },
 }
 
-// 错开入场：子项
+// 错开入场：子项（只做 y 位移，不做 opacity，避免移动端闪烁）
 export const staggerItem: Variants = {
-  hidden:  { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0,  transition: { type: 'spring', stiffness: 350, damping: 30 } },
+  hidden:  { y: 20 },
+  visible: { y: 0, transition: { type: 'spring', stiffness: 350, damping: 30 } },
 }
 
 // 悬停提升 — Apple Card 效果（配合 whileHover 使用）
