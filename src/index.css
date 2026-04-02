@@ -4,78 +4,78 @@
 
 /* ============================================================
    DESIGN TOKENS — AKB48 Fan Community
-   Industrial/Utilitarian x Wabi-Sabi
+   Base: Zinc (neutral gray) + Rose accent
    ============================================================ */
 @layer base {
   :root {
-    /* Page & content backgrounds */
+    /* Page & content backgrounds — zinc palette */
     --page-bg:    255 255 255;   /* #FFFFFF */
     --bg:         255 255 255;   /* #FFFFFF — 内容区纯白 */
-    --bg-2:       247 247 245;   /* #F7F7F5 — hover、输入框背景 */
-    --bg-3:       237 237 235;   /* #EDEDEB — 选中状态 */
+    --bg-2:       250 250 250;   /* zinc-50 — hover、输入框背景 */
+    --bg-3:       244 244 245;   /* zinc-100 — 选中状态 */
 
-    /* Borders */
-    --border:     232 232 229;   /* #E8E8E5 — 主要边框（白底上要轻） */
-    --border-2:   240 240 238;   /* #F0F0EE — 轻量分隔线 */
+    /* Borders — zinc */
+    --border:     228 228 231;   /* zinc-200 — 主要边框 */
+    --border-2:   244 244 245;   /* zinc-100 — 轻量分隔线 */
 
-    /* Text */
-    --text:       26 26 28;      /* #1A1A1C — 正文 */
-    --text-2:     62 63 70;      /* #3E3F46 — 次要文字 */
-    --text-3:     110 111 120;   /* #6E6F78 — 辅助文字 */
-    --text-4:     158 159 168;   /* #9E9FA8 — 占位符、元数据 */
+    /* Text — zinc */
+    --text:        9   9  11;   /* zinc-950 — 正文 */
+    --text-2:     63  63  70;   /* zinc-700 — 次要文字 */
+    --text-3:    113 113 122;   /* zinc-500 — 辅助文字 */
+    --text-4:    161 161 170;   /* zinc-400 — 占位符、元数据 */
 
-    /* Accent — 粉玫瑰，idol 色 */
+    /* Accent — 粉玫瑰，idol 色（保留品牌色） */
     --accent:     225 29 116;    /* #E11D74 */
     --accent-2:   196 24 106;    /* #C4186A — hover */
     --accent-bg:  253 240 247;   /* #FDF0F7 — Badge背景 */
 
     /* shadcn/ui compatibility */
     --background: 255 255 255;
-    --foreground:  26 26 28;
+    --foreground:   9   9  11;   /* zinc-950 */
     --card:        255 255 255;
-    --card-foreground: 26 26 28;
+    --card-foreground:   9   9  11;
     --popover:     255 255 255;
-    --popover-foreground: 26 26 28;
+    --popover-foreground:   9   9  11;
     --primary:     225 29 116;
     --primary-foreground: 255 255 255;
-    --secondary:   247 247 245;
-    --secondary-foreground: 26 26 28;
-    --muted:       247 247 245;
-    --muted-foreground: 110 111 120;
+    --secondary:   244 244 245;  /* zinc-100 */
+    --secondary-foreground:   9   9  11;
+    --muted:       244 244 245;  /* zinc-100 */
+    --muted-foreground: 113 113 122;  /* zinc-500 */
     --destructive: 185 28 28;
     --destructive-foreground: 255 255 255;
-    --input:       232 232 229;
+    --input:       228 228 231;  /* zinc-200 */
     --ring:        225 29 116;
     --radius:      0.625rem;     /* 10px */
   }
 
-  /* Dark mode */
+  /* Dark mode — zinc */
   [data-theme="dark"], .dark {
-    --page-bg:    0 0 0;
-    --bg:         19 20 21;
-    --bg-2:       28 29 31;
-    --bg-3:       37 38 40;
-    --border:     46 47 50;
-    --border-2:   35 36 38;
-    --text:       232 233 230;
-    --text-2:     170 171 176;
-    --text-3:     114 115 122;
-    --text-4:     68 69 76;
-    --accent:     244 63 156;    /* #F43F9C — 暗色模式下亮一档 */
-    --accent-2:   225 29 116;    /* #E11D74 — hover */
-    --accent-bg:  45 10 26;      /* #2D0A1A — Badge背景 */
+    --page-bg:     9   9  11;   /* zinc-950 */
+    --bg:          9   9  11;   /* zinc-950 */
+    --bg-2:       24  24  27;   /* zinc-900 */
+    --bg-3:       39  39  42;   /* zinc-800 */
+    --border:     39  39  42;   /* zinc-800 */
+    --border-2:   24  24  27;   /* zinc-900 */
+    --text:       250 250 250;  /* zinc-50 */
+    --text-2:     161 161 170;  /* zinc-400 */
+    --text-3:     113 113 122;  /* zinc-500 */
+    --text-4:      63  63  70;  /* zinc-700 */
+    --accent:     244 63 156;   /* #F43F9C — 暗色模式下亮一档 */
+    --accent-2:   225 29 116;   /* #E11D74 — hover */
+    --accent-bg:   45 10  26;   /* #2D0A1A — Badge背景 */
 
-    --background:  19 20 21;
-    --foreground:  232 233 230;
-    --card:        19 20 21;
-    --card-foreground: 232 233 230;
+    --background:   9   9  11;
+    --foreground:  250 250 250;
+    --card:         9   9  11;
+    --card-foreground: 250 250 250;
     --primary:     244 63 156;
     --primary-foreground: 255 255 255;
-    --secondary:   28 29 31;
-    --secondary-foreground: 232 233 230;
-    --muted:       28 29 31;
-    --muted-foreground: 114 115 122;
-    --input:       46 47 50;
+    --secondary:   24  24  27;  /* zinc-900 */
+    --secondary-foreground: 250 250 250;
+    --muted:       24  24  27;  /* zinc-900 */
+    --muted-foreground: 113 113 122;
+    --input:       39  39  42;  /* zinc-800 */
     --ring:        244 63 156;
   }
 }
