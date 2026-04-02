@@ -73,11 +73,10 @@ export const modalVariants: Variants = {
   exit:    { opacity: 0, scale: 0.95, transition: { duration: 0.15 } },
 }
 
-// 错开入场：父容器
+// 错开入场：父容器（只编排时序，子项各自处理 opacity）
 export const staggerContainer: Variants = {
-  hidden:  { opacity: 0 },
+  hidden:  {},
   visible: {
-    opacity: 1,
     transition: { staggerChildren: 0.06, delayChildren: 0.05 },
   },
 }

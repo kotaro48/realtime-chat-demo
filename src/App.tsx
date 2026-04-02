@@ -26,7 +26,7 @@ function MainLayout() {
 function AnimatedRoutes() {
   const location = useLocation()
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="sync" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route element={<MainLayout />}>
           <Route path="/"                              element={<BoardListPage />} />
