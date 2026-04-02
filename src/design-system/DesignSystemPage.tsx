@@ -5,19 +5,178 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 
-import { motion } from 'framer-motion'              // framer-motion: 动效展示
-import { Button } from '@/components/ui/button'    // 微拟物渐变按钮
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'  // 凸起/凹陷卡片
-import { Input } from '@/components/ui/input'      // 凹陷输入框
-import { Badge } from '@/components/ui/badge'      // 渐变徽章
-import { PageWrapper } from '@/components/PageWrapper'  // 页面入场包装器
-import { staggerContainer, staggerItem, hoverLift, tapPress, scaleIn, fadeInUp } from '@/lib/motion'  // Apple Spring 配置
-import { Heart, Send, Star, Plus } from 'lucide-react'  // lucide-react：图标
+import { useState } from 'react'
+import { motion, useAnimation, AnimatePresence } from 'framer-motion'  // framer-motion: 动效展示
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { PageWrapper } from '@/components/PageWrapper'
+import { staggerContainer, staggerItem, hoverLift, tapPress, scaleIn, fadeInUp, gentle } from '@/lib/motion'
+import { Heart, Send, Star, Plus, RotateCcw } from 'lucide-react'
 
 /* ============================================================
-   设计系统展示页
-   - 每个 Section 展示一个组件的所有变体
-   - 用于验证微拟物光影效果是否正确
+   stagger 演示子组件：支持重播
+   - 用 key 强制重新挂载，动画从头播放
+   ============================================================ */
+function StaggerDemo() {
+  const [key, setKey] = useState(0)
+  const labels = ['Spring', 'Damping', 'Stiffness', 'Mass', 'Inertia', 'Bounce']
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">错开入场 — 每项延迟 60ms 依次弹出</p>
+        <button
+          onClick={() => setKey(k => k + 1)}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RotateCcw className="h-3 w-3" />
+          重播
+        </button>
+      </div>
+      <motion.div
+        key={key}
+        className="grid grid-cols-3 gap-3"
+        variants={staggerContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        {labels.map(label => (
+          <motion.div
+            key={label}
+            variants={staggerItem}
+            className="rounded-2xl bg-muted p-3 text-center text-sm font-medium text-foreground"
+          >
+            {label}
+          </motion.div>
+        ))}
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
+   scaleIn 演示子组件：支持重播
+   ============================================================ */
+function ScaleInDemo() {
+  const controls = useAnimation()
+  const [playing, setPlaying] = useState(false)
+
+  async function replay() {
+    if (playing) return
+    setPlaying(true)
+    await controls.start('hidden')
+    await controls.start('visible')
+    setPlaying(false)
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">弹性缩放 — 从 0.92 弹到 1.0</p>
+        <button
+          onClick={replay}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RotateCcw className="h-3 w-3" />
+          重播
+        </button>
+      </div>
+      <motion.div
+        animate={controls}
+        variants={scaleIn}
+        initial="visible"
+        className="rounded-2xl border border-border bg-card p-4 text-sm text-foreground font-medium"
+        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
+      >
+        scale: 0.92 → 1.0 &nbsp;·&nbsp; opacity: 0 → 1 &nbsp;·&nbsp; spring stiffness: 400
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
+   fadeInUp 演示子组件：支持重播
+   ============================================================ */
+function FadeInUpDemo() {
+  const [key, setKey] = useState(0)
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">淡入上移 — y: 24px → 0，同时 opacity: 0 → 1</p>
+        <button
+          onClick={() => setKey(k => k + 1)}
+          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <RotateCcw className="h-3 w-3" />
+          重播
+        </button>
+      </div>
+      <motion.div
+        key={key}
+        variants={fadeInUp}
+        initial="hidden"
+        animate="visible"
+        className="rounded-2xl border border-border bg-card p-4 text-sm text-foreground font-medium"
+        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
+      >
+        从下方 24px 处弹入 &nbsp;·&nbsp; spring stiffness: 300, damping: 30
+      </motion.div>
+    </div>
+  )
+}
+
+/* ============================================================
+   模态框演示子组件
+   ============================================================ */
+function ModalDemo() {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="space-y-2">
+      <p className="text-xs text-muted-foreground">模态框 — 背景淡入 + 内容弹性展开</p>
+      <Button size="sm" onClick={() => setOpen(true)}>打开模态框</Button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* 遮罩 */}
+            <motion.div
+              key="overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 bg-black/40 z-50"
+              onClick={() => setOpen(false)}
+            />
+            {/* 内容 */}
+            <motion.div
+              key="modal"
+              initial={{ opacity: 0, scale: 0.92, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0, transition: gentle }}
+              exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
+              className="fixed inset-x-4 top-1/2 -translate-y-1/2 z-50 rounded-2xl bg-card p-6 max-w-sm mx-auto"
+              style={{ boxShadow: '0 24px 48px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.8)' }}
+            >
+              <h3 className="font-semibold text-foreground mb-2">模态框弹性展开</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                scale: 0.92 → 1.0 &nbsp;·&nbsp; y: 24 → 0<br />
+                spring stiffness: 300, damping: 35
+              </p>
+              <Button size="sm" onClick={() => setOpen(false)}>关闭</Button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+/* ============================================================
+   主页面
    ============================================================ */
 export function DesignSystemPage() {
   return (
@@ -25,76 +184,42 @@ export function DesignSystemPage() {
     <div className="min-h-screen bg-background p-6 pb-24">
       <div className="mx-auto max-w-2xl space-y-12">
 
-        {/* 页面标题 */}
         <motion.div className="space-y-1" variants={fadeInUp} initial="hidden" animate="visible">
           <h1 className="text-2xl font-bold text-foreground">Design System</h1>
           <p className="text-sm text-muted-foreground">微拟物光影质感 — 渐变 + 3D阴影 + Apple Spring 动效</p>
         </motion.div>
 
         {/* ---- Motion ---- */}
-        <section className="space-y-4">
+        <section className="space-y-6">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Motion — Apple Spring</h2>
-
-          {/* 错开入场 */}
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">错开入场 stagger（刷新页面查看效果）</p>
-            <motion.div
-              className="grid grid-cols-3 gap-3"
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
-            >
-              {['Spring', 'Damping', 'Stiffness', 'Mass', 'Inertia', 'Bounce'].map(label => (
-                <motion.div
-                  key={label}
-                  variants={staggerItem}
-                  className="rounded-2xl bg-muted p-3 text-center text-sm font-medium text-foreground"
-                >
-                  {label}
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
-
+          <StaggerDemo />
+          <FadeInUpDemo />
+          <ScaleInDemo />
+          <ModalDemo />
           {/* 悬停提升 + 点击回弹 */}
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">悬停提升 + 点击回弹（hover / tap）</p>
+            <p className="text-xs text-muted-foreground">悬停提升 + 点击回弹 — hover: y -3px / scale 1.015，tap: scale 0.97</p>
             <div className="flex gap-3 flex-wrap">
               <motion.div
                 whileHover={hoverLift}
                 whileTap={tapPress}
-                className="rounded-2xl text-primary-foreground px-6 py-3 text-sm font-medium cursor-pointer"
+                className="rounded-2xl text-primary-foreground px-6 py-3 text-sm font-medium cursor-pointer select-none"
                 style={{
                   background: 'linear-gradient(135deg, var(--primary) 0%, color-mix(in srgb, var(--primary) 70%, black) 100%)',
                   boxShadow: '0 4px 12px color-mix(in srgb, var(--primary) 35%, transparent)',
                 }}
               >
-                Hover me
+                Hover / Tap me
               </motion.div>
               <motion.div
                 whileHover={hoverLift}
                 whileTap={tapPress}
-                className="rounded-2xl border border-border bg-card px-6 py-3 text-sm font-medium cursor-pointer"
+                className="rounded-2xl border border-border bg-card px-6 py-3 text-sm font-medium cursor-pointer select-none"
                 style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
               >
-                Tap me
+                Hover / Tap me
               </motion.div>
             </div>
-          </div>
-
-          {/* 弹性缩放 whileInView */}
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">弹性缩放 scaleIn（whileInView 触发）</p>
-            <motion.div
-              variants={scaleIn}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-40px' }}
-              className="rounded-2xl border border-border bg-card p-4 text-sm text-muted-foreground"
-              style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06), inset 0 1px 0 rgba(255,255,255,0.8)' }}
-            >
-              滚动到此处触发弹性入场 — stiffness: 400, damping: 25
-            </motion.div>
           </div>
         </section>
 
