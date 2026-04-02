@@ -304,8 +304,8 @@ export function HandshakeGrid() {
       fetch('/api/members'),
     ])
     const [gridData, membersData] = await Promise.all([gridRes.json(), membersRes.json()])
-    setGrid(gridData)
-    setAllMembers(membersData)
+    setGrid(gridRes.ok ? gridData : null)
+    setAllMembers(Array.isArray(membersData) ? membersData : [])
     setLoading(false)
   }
 
