@@ -125,7 +125,7 @@ export function ThreadListPage() {
 
           <button
             onClick={handleNewThreadClick}
-            className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 rounded-sm px-3 h-[30px] shrink-0"
+            className="font-ui text-[13px] font-medium text-white bg-ds-text hover:bg-ds-text-2 rounded-sm px-3 h-[30px] shrink-0"
           >
             スレを立てる
           </button>
