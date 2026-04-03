@@ -127,7 +127,7 @@ function CellModal({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 disabled:opacity-40 rounded-sm px-4 h-9"
+            className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 disabled:opacity-40 rounded-sm px-4 h-9"
           >
             {saving ? '…' : '保存'}
           </button>
@@ -203,7 +203,7 @@ function NewEventModal({
           <button
             type="submit"
             disabled={saving || !name.trim()}
-            className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 disabled:opacity-40 rounded-sm px-4 h-9"
+            className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 disabled:opacity-40 rounded-sm px-4 h-9"
           >
             {saving ? '…' : '追加'}
           </button>
@@ -398,7 +398,7 @@ export function HandshakeGrid() {
         <div className="flex gap-2">
           <button
             onClick={() => setMemberModalOpen(true)}
-            className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 rounded-sm px-4 h-9"
+            className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 rounded-sm px-4 h-9"
           >
             ＋ メンバー
           </button>

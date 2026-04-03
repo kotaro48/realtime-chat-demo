@@ -66,7 +66,7 @@ export function ChatInput({ onSend, replyTo, onCancelReply, disabled, errorMsg, 
         <button
           onClick={submit}
           disabled={!input.trim() || disabled}
-          className="w-10 h-10 flex items-center justify-center bg-ds-accent text-white rounded-sm hover:bg-ds-accent-2 disabled:opacity-30 transition-colors shrink-0 active:scale-95"
+          className="w-10 h-10 flex items-center justify-center bg-primary text-primary-foreground rounded-sm hover:bg-primary/90 disabled:opacity-30 transition-colors shrink-0 active:scale-95"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />

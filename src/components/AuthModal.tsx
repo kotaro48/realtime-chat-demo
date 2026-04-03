@@ -144,7 +144,7 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = 'login' }: Au
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-[38px] font-ui text-[13.5px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 rounded-sm disabled:opacity-50 mt-1"
+            className="w-full h-[38px] font-ui text-[13.5px] font-medium text-white bg-primary hover:bg-primary/90 rounded-sm disabled:opacity-50 mt-1"
           >
             {loading ? '…' : tab === 'login' ? 'ログイン' : '登録する'}
           </button>

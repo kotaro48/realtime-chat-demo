@@ -75,7 +75,7 @@ export function MessageList({ messages, currentUser, onQuote, onReact }: Props) 
       {showNewTip && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 h-7 bg-ds-accent text-white font-ui text-[12px] font-medium rounded-full shadow-sm hover:bg-ds-accent-2 transition-colors"
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3 h-7 bg-primary text-primary-foreground font-ui text-[12px] font-medium rounded-full shadow-sm hover:bg-primary/90 transition-colors"
         >
           <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />

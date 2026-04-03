@@ -22,9 +22,9 @@ const BUTTON_STYLES: Record<string, {
   hoverBoxShadow: string
 }> = {
   default: {
-    background: 'linear-gradient(135deg, color-mix(in srgb, rgb(var(--foreground)) 80%, white) 0%, rgb(var(--foreground)) 100%)',
-    boxShadow: '0 4px 12px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.2)',
-    hoverBoxShadow: '0 6px 20px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -1px 0 rgba(0,0,0,0.25)',
+    background: 'linear-gradient(135deg, color-mix(in srgb, rgb(var(--primary)) 85%, white) 0%, rgb(var(--primary)) 100%)',
+    boxShadow: '0 4px 12px color-mix(in srgb, rgb(var(--primary)) 35%, transparent), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.15)',
+    hoverBoxShadow: '0 6px 20px color-mix(in srgb, rgb(var(--primary)) 45%, transparent), inset 0 1px 0 rgba(255,255,255,0.16), inset 0 -1px 0 rgba(0,0,0,0.2)',
   },
   secondary: {
     background: 'linear-gradient(135deg, rgb(var(--secondary)) 0%, color-mix(in srgb, rgb(var(--secondary)) 85%, black) 100%)',

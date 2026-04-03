@@ -457,7 +457,7 @@ export function ThreadDetailPage() {
                 }}
               />
               <button
-                className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 disabled:opacity-40 rounded-sm px-4 self-end h-10 shrink-0 flex items-center gap-1.5"
+                className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 disabled:opacity-40 rounded-sm px-4 self-end h-10 shrink-0 flex items-center gap-1.5"
                 onClick={handleSubmit}
                 disabled={!input.trim() || submitting}
               >
@@ -476,7 +476,7 @@ export function ThreadDetailPage() {
                 返信するにはログインが必要です
               </span>
               <button
-                className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 rounded-sm px-4 h-9 shrink-0"
+                className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 rounded-sm px-4 h-9 shrink-0"
                 onClick={() => setAuthOpen(true)}
               >
                 ログイン

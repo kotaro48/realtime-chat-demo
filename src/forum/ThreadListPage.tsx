@@ -253,7 +253,7 @@ export function ThreadListPage() {
               <button
                 type="submit"
                 disabled={newSubmitting || !newTitle.trim() || !newContent.trim()}
-                className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 disabled:opacity-40 rounded-sm px-4 h-9 flex items-center gap-1.5"
+                className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 disabled:opacity-40 rounded-sm px-4 h-9 flex items-center gap-1.5"
               >
                 {newSubmitting && (
                   <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">

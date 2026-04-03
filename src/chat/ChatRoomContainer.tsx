@@ -94,7 +94,7 @@ export function ChatRoomContainer() {
           </p>
           <button
             onClick={() => navigate('/')}
-            className="font-ui text-[13px] font-medium text-white bg-ds-accent hover:bg-ds-accent-2 rounded-sm px-4 h-9 transition-colors"
+            className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 rounded-sm px-4 h-9 transition-colors"
           >
             ログイン
           </button>
