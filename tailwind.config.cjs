@@ -5,7 +5,7 @@ module.exports = {
     extend: {
       fontFamily: {
         jp:   ['"Noto Sans JP"', 'sans-serif'],
-        ui:   ['"DM Sans"', 'sans-serif'],
+        ui:   ['"Noto Sans JP"', 'sans-serif'],
         mono: ['"Noto Sans JP"', 'sans-serif'],
         sans: ['"Noto Sans JP"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
