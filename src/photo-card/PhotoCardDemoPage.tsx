@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { PhotoCardBox, PhotoCardData } from './PhotoCardBox'
+import { PhotoCardLightbox } from './PhotoCardLightbox'  // PhotoCardLightbox: 点击卡片后的灯箱展示
 
 // ── Demo card data (AKB48 members with image color palettes) ──────────────
 
@@ -42,7 +44,10 @@ const DEMO_CARDS: PhotoCardData[][] = [
 // ── Page ──────────────────────────────────────────────────────────────────
 
 export function PhotoCardDemoPage() {
+  const [selectedCard, setSelectedCard] = useState<PhotoCardData | null>(null)
+
   return (
+    <>
     <div className="min-h-dvh bg-bg pb-20">
       {/* Header */}
       <div className="sticky top-0 z-30 bg-bg border-b border-ds-border">
@@ -85,11 +90,12 @@ export function PhotoCardDemoPage() {
         </p>
 
         <div className="flex flex-wrap gap-10 justify-center sm:justify-start">
-          {DEMO_CARDS.map((stack, i) => (
+          {DEMO_CARDS.map((stack) => (
             <PhotoCardBox
               key={stack[0].id}
               cards={stack}
               label={stack[0].romaji}
+              onCardClick={setSelectedCard}
             />
           ))}
         </div>
@@ -114,5 +120,9 @@ export function PhotoCardDemoPage() {
         </div>
       </div>
     </div>
+
+    {/* 灯箱 — 点击卡片后展示，fixed 定位不影响文档流 */}
+    <PhotoCardLightbox card={selectedCard} onClose={() => setSelectedCard(null)} />
+    </>
   )
 }

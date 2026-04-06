@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { motion } from 'framer-motion'  // framer-motion: 3D card pull animation
+import { useRef, useState } from 'react'
+import { motion, useMotionValue, useSpring } from 'framer-motion'  // framer-motion: 3D card pull + tilt animation
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ export interface PhotoCardData {
 
 // ── Card face content ──────────────────────────────────────────────────────
 
-function CardFace({ card }: { card: PhotoCardData }) {
+export function CardFace({ card }: { card: PhotoCardData }) {
   return (
     <div
       className="w-full h-full flex flex-col relative overflow-hidden"
@@ -108,6 +108,7 @@ function CardBack({ card }: { card: PhotoCardData }) {
 interface Props {
   cards: PhotoCardData[]   // [0] = front card, [1..] = back cards (max 3 shown)
   label?: string           // optional label below the sleeve
+  onCardClick?: (card: PhotoCardData) => void  // lightbox callback
 }
 
 // Sleeve dimensions (the physical holder)
@@ -123,11 +124,33 @@ const SLEEVE_OVERLAP = 28  // card bottom is 28px inside sleeve
 // How far the card pulls out on hover
 const PULL_DISTANCE = 72
 
-export function PhotoCardBox({ cards, label }: Props) {
+export function PhotoCardBox({ cards, label, onCardClick }: Props) {
   const [mobileRevealed, setMobileRevealed] = useState(false)
 
   const mainCard = cards[0]
   const backCards = cards.slice(1, 3)
+
+  // 鼠标跟随倾斜：±12 度，useSpring 使动画丝滑
+  const cardRef = useRef<HTMLDivElement>(null)
+  const tiltX = useMotionValue(0)
+  const tiltY = useMotionValue(0)
+  const springX = useSpring(tiltX, { stiffness: 400, damping: 28 })
+  const springY = useSpring(tiltY, { stiffness: 400, damping: 28 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const el = cardRef.current
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    const nx = (e.clientX - rect.left) / rect.width - 0.5   // -0.5 ~ 0.5
+    const ny = (e.clientY - rect.top) / rect.height - 0.5
+    tiltX.set(ny * -24)   // rotateX：鼠标下方时向前倾
+    tiltY.set(nx * 24)    // rotateY：鼠标右侧时向右倾
+  }
+
+  const handleMouseLeave = () => {
+    tiltX.set(0)
+    tiltY.set(0)
+  }
 
   // Back card offsets: each card sticks out slightly to the right/down
   const backOffsets = [
@@ -182,6 +205,7 @@ export function PhotoCardBox({ cards, label }: Props) {
             The card starts with SLEEVE_OVERLAP px hidden behind sleeve front face.
           */}
           <motion.div
+            ref={cardRef}
             className="absolute overflow-hidden rounded-md cursor-pointer"
             style={{
               width: CARD_W,
@@ -190,31 +214,24 @@ export function PhotoCardBox({ cards, label }: Props) {
               left: 0,
               zIndex: 10,
               transformOrigin: 'bottom center',
-              // Real photo cards have a subtle shadow from the sleeve holding them
               boxShadow: '0 2px 8px rgba(0,0,0,0.18)',
+              rotateX: springX,
+              rotateY: springY,
             }}
-            // Desktop: hover-driven
             whileHover={{
               y: -PULL_DISTANCE,
-              rotateX: -11,
               scale: 1.03,
               boxShadow: '0 16px 40px rgba(0,0,0,0.28)',
             }}
-            // Mobile: state-driven
             animate={
               window.matchMedia('(hover: none)').matches
-                ? {
-                    y: mobileRevealed ? -PULL_DISTANCE : 0,
-                    rotateX: mobileRevealed ? -11 : 0,
-                    scale: mobileRevealed ? 1.03 : 1,
-                  }
+                ? { y: mobileRevealed ? -PULL_DISTANCE : 0, scale: mobileRevealed ? 1.03 : 1 }
                 : undefined
             }
-            transition={{
-              type: 'tween',
-              ease: [0.25, 0, 0, 1],
-              duration: 0.30,
-            }}
+            transition={{ type: 'tween', ease: [0.25, 0, 0, 1], duration: 0.30 }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+            onClick={() => onCardClick?.(mainCard)}
           >
             <CardFace card={mainCard} />
           </motion.div>
