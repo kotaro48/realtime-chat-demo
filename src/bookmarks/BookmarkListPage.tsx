@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'  // react-router-dom: 路由跳转
 import { getUser, authHeaders } from '../lib/auth'  // auth: 登录状态和 JWT
 
@@ -28,6 +28,19 @@ export function BookmarkListPage() {
   const user = getUser()
   const [bookmarks, setBookmarks] = useState<BookmarkedThread[]>([])
   const [loading, setLoading] = useState(true)
+  const [scrolled, setScrolled] = useState(false)
+  const largeTitleRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    const el = largeTitleRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
@@ -39,13 +52,19 @@ export function BookmarkListPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-bg">
-      <header className="shrink-0 bg-bg border-b border-ds-border-2 z-10">
-        <div className="max-w-[1060px] mx-auto h-[52px] flex items-center px-5">
-          <h1 className="font-ui text-[15px] font-semibold text-ds-text">収藏したスレッド</h1>
+      <header className={`shrink-0 sticky top-0 z-10 transition-all duration-200 ${scrolled ? 'bg-bg border-b border-ds-border-2' : 'bg-transparent'}`}>
+        <div className="max-w-[1060px] mx-auto h-[52px] relative flex items-center px-5">
+          <span className={`absolute left-1/2 -translate-x-1/2 font-ui text-[15px] font-semibold text-ds-text tracking-tight pointer-events-none transition-opacity duration-200 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
+            収藏したスレッド
+          </span>
         </div>
       </header>
 
       <main className="flex-1 max-w-[860px] mx-auto w-full px-5 pb-[52px]">
+        {/* 大标题 */}
+        <h1 ref={largeTitleRef} className="font-jp text-[28px] font-bold text-ds-text pt-5 pb-3 leading-tight">
+          収藏したスレッド
+        </h1>
         {!user ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20">
             <p className="font-ui text-[14px] text-ds-text-3 text-center">

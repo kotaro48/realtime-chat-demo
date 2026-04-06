@@ -48,6 +48,19 @@ export function ThreadListPage() {
   const titleRef = useRef<HTMLInputElement>(null)
 
   const user = getUser()
+  const [scrolled, setScrolled] = useState(false)
+  const largeTitleRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    const el = largeTitleRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     Promise.all([
@@ -102,9 +115,10 @@ export function ThreadListPage() {
     <div className="min-h-screen bg-page-bg">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Header — 全宽 */}
-      <header className="sticky top-0 z-50 bg-bg border-b border-ds-border-2">
-        <div className="max-w-[1060px] mx-auto h-[52px] flex items-center gap-3 px-5">
+      {/* Header — 透明起始，滚动后显示背景+边框 */}
+      <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'bg-bg border-b border-ds-border-2' : 'bg-transparent'}`}>
+        <div className="max-w-[1060px] mx-auto h-[52px] relative flex items-center px-5">
+          {/* 左：返回 */}
           <button
             onClick={() => navigate('/')}
             className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"
@@ -114,41 +128,41 @@ export function ThreadListPage() {
             </svg>
           </button>
 
-          <div className="flex-1 min-w-0">
-            <p className="font-ui text-[14.5px] font-medium text-ds-text truncate leading-tight">
-              {board?.name ?? '…'}
-            </p>
-            {board?.description && (
-              <p className="font-ui text-[11px] text-ds-text-4 truncate leading-tight">{board.description}</p>
-            )}
-          </div>
+          {/* 中：版块名，仅滚动后可见 */}
+          <span className={`absolute left-1/2 -translate-x-1/2 font-ui text-[15px] font-semibold text-ds-text tracking-tight pointer-events-none transition-opacity duration-200 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
+            {board?.name ?? '…'}
+          </span>
 
-          <button
-            onClick={handleNewThreadClick}
-            className="font-ui text-[13px] font-medium text-white bg-ds-text hover:bg-ds-text-2 rounded-sm px-3 h-[30px] shrink-0"
-          >
-            スレを立てる
-          </button>
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5"/>
-            </svg>
-          </button>
+          {/* 右：发帖 + 汉堡 */}
+          <div className="ml-auto flex items-center gap-1 shrink-0">
+            <button
+              onClick={handleNewThreadClick}
+              className="font-ui text-[13px] font-medium text-white bg-ds-text hover:bg-ds-text-2 rounded-sm px-3 h-[30px]"
+            >
+              スレを立てる
+            </button>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
       {/* 内容列 + 右侧栏 */}
       <div className="max-w-[1060px] mx-auto px-5 pb-[52px] flex gap-6 items-start">
         <main className="flex-1 min-w-0 bg-bg">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-1.5 py-4 font-ui text-[12px] text-ds-text-4">
-            <span className="hover:text-ds-text cursor-pointer" onClick={() => navigate('/')}>掲示板</span>
-            <span>›</span>
-            <span className="text-ds-text-2">{board?.name}</span>
-          </div>
+          {/* 大标题 */}
+          <h1 ref={largeTitleRef} className="font-jp text-[28px] font-bold text-ds-text pt-5 pb-1 leading-tight">
+            {board?.name ?? '…'}
+          </h1>
+          {board?.description && (
+            <p className="font-ui text-[13px] text-ds-text-3 pb-3">{board.description}</p>
+          )}
 
           {loading ? (
             <p className="text-[13.5px] text-ds-text-3 py-8">読み込み中…</p>

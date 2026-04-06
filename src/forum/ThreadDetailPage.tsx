@@ -239,7 +239,20 @@ export function ThreadDetailPage() {
   const [user, setUser] = useState<AuthUser | null>(getUser)
   const [authOpen, setAuthOpen] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const largeTitleRef = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    const el = largeTitleRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   // loadPosts：只刷新帖子列表，供下拉刷新复用
   const loadPosts = useCallback(async () => {
@@ -302,9 +315,10 @@ export function ThreadDetailPage() {
     <div className="h-dvh bg-page-bg flex flex-col">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Header — 全宽 */}
-      <header className="shrink-0 bg-bg border-b border-ds-border-2 z-50">
-        <div className="max-w-[1060px] mx-auto h-[52px] flex items-center gap-3 px-5">
+      {/* Header — 透明起始，滚动后显示背景+边框 */}
+      <header className={`shrink-0 z-50 transition-all duration-200 ${scrolled ? 'bg-bg border-b border-ds-border-2' : 'bg-transparent'}`}>
+        <div className="max-w-[1060px] mx-auto h-[52px] relative flex items-center px-5">
+          {/* 左：返回 */}
           <button
             onClick={() => navigate(`/board/${slug}`)}
             className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"
@@ -313,33 +327,38 @@ export function ThreadDetailPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/>
             </svg>
           </button>
-          <h1 className="font-ui text-[14px] font-medium text-ds-text flex-1 truncate leading-tight">
+
+          {/* 中：标题，仅滚动后可见 */}
+          <span className={`absolute left-1/2 -translate-x-1/2 w-[55%] text-center font-ui text-[14px] font-medium text-ds-text pointer-events-none truncate transition-opacity duration-200 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
             {title || '…'}
-          </h1>
-          <span className="font-mono text-[11px] text-ds-text-4 shrink-0">
-            {posts.length} レス
           </span>
-          {/* 収藏按钮：已收藏时 accent 填充，未收藏时灰色描边 */}
-          <button
-            onClick={toggleBookmark}
-            className="w-9 h-9 flex items-center justify-center hover:bg-bg-2 rounded-sm shrink-0"
-            aria-label={isBookmarked ? '収藏を解除' : '収藏する'}
-          >
-            <Heart
-              className="w-5 h-5"
-              strokeWidth={1.5}
-              color={isBookmarked ? 'var(--color-ds-accent)' : 'var(--color-ds-text-4)'}
-              fill={isBookmarked ? 'var(--color-ds-accent)' : 'none'}
-            />
-          </button>
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5"/>
-            </svg>
-          </button>
+
+          {/* 右：レス数 + 收藏 + 汉堡 */}
+          <div className="ml-auto flex items-center shrink-0">
+            <span className="font-mono text-[11px] text-ds-text-4 mr-1">
+              {posts.length} レス
+            </span>
+            <button
+              onClick={toggleBookmark}
+              className="w-9 h-9 flex items-center justify-center hover:bg-bg-2 rounded-sm"
+              aria-label={isBookmarked ? '収藏を解除' : '収藏する'}
+            >
+              <Heart
+                className="w-5 h-5"
+                strokeWidth={1.5}
+                color={isBookmarked ? 'var(--color-ds-accent)' : 'var(--color-ds-text-4)'}
+                fill={isBookmarked ? 'var(--color-ds-accent)' : 'none'}
+              />
+            </button>
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5"/>
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -348,6 +367,12 @@ export function ThreadDetailPage() {
         {/* PullToRefresh 替换原来的 <main>，内部自带可滚动容器 */}
         <PullToRefresh onRefresh={loadPosts} className="flex-1 min-h-0">
         <div className="max-w-[860px] mx-auto bg-bg min-h-full px-5 pt-2 pb-4 space-y-0">
+          {/* 大标题 — 滚出视口后 header 小标题接管 */}
+          {title && (
+            <h1 ref={largeTitleRef} className="font-jp text-[24px] font-bold text-ds-text pt-3 pb-3 leading-snug line-clamp-2">
+              {title}
+            </h1>
+          )}
           {loading ? (
             <p className="text-[13.5px] text-ds-text-3 py-8">読み込み中…</p>
           ) : (
