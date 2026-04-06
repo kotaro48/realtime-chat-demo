@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'  // react-router-dom: 路由跳转
 import { motion } from 'framer-motion'          // framer-motion: 列表错开入场动画
 import { MessageSquare, Globe, Handshake, Camera, LayoutGrid } from 'lucide-react'  // lucide-react: 版块图标
@@ -36,6 +36,20 @@ export function BoardListPage() {
     try { return JSON.parse(localStorage.getItem('akb48_user') ?? 'null') } catch { return null }
   })
   const [authOpen, setAuthOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+  const largeTitleRef = useRef<HTMLHeadingElement>(null)
+
+  // 大标题离开视口时 header 显示小标题 + 背景
+  useEffect(() => {
+    const el = largeTitleRef.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setScrolled(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   useEffect(() => {
     fetch('/api/boards')
@@ -48,8 +62,8 @@ export function BoardListPage() {
     <div className="min-h-screen bg-page-bg">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={() => setUser(null)} />
 
-      {/* Header — 全宽 */}
-      <header className="sticky top-0 z-50 bg-bg border-b border-ds-border-2">
+      {/* Header — 透明起始，滚动后显示背景+边框 */}
+      <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'bg-bg border-b border-ds-border-2' : 'bg-transparent'}`}>
         <div className="max-w-[1060px] mx-auto h-[52px] relative flex items-center px-5">
           {/* 左：汉堡菜单 */}
           <button
@@ -61,8 +75,8 @@ export function BoardListPage() {
             </svg>
           </button>
 
-          {/* 中：标题绝对居中 */}
-          <span className="absolute left-1/2 -translate-x-1/2 font-ui text-[15px] font-semibold text-ds-text tracking-tight pointer-events-none">
+          {/* 中：小标题，仅滚动后可见 */}
+          <span className={`absolute left-1/2 -translate-x-1/2 font-ui text-[15px] font-semibold text-ds-text tracking-tight pointer-events-none transition-opacity duration-200 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
             Ota Kit
           </span>
 
@@ -87,8 +101,13 @@ export function BoardListPage() {
       {/* 内容列 + 右侧栏 */}
       <div className="max-w-[1060px] mx-auto px-5 pb-24 flex gap-6 items-start">
         <main className="flex-1 min-w-0 bg-bg">
+          {/* 大标题 — 滚出视口后 header 小标题接管 */}
+          <h1 ref={largeTitleRef} className="font-jp text-[28px] font-bold text-ds-text pt-5 pb-2 leading-tight">
+            Ota Kit
+          </h1>
+
           {/* Section label */}
-          <div className="pt-5 pb-3">
+          <div className="pt-1 pb-3">
             <span className="font-mono text-[10px] font-medium text-ds-text-4 tracking-widest uppercase">
               掲示板
             </span>
