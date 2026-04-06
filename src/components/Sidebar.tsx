@@ -39,7 +39,7 @@ export function Sidebar({ open, onClose, onLogout }: SidebarProps) {
         {/* Header */}
         <div className="h-[52px] flex items-center justify-between px-5 border-b border-ds-border-2">
           <span className="font-ui text-[15px] font-semibold text-ds-text tracking-tight">
-            AKB48
+            Ota Kit
           </span>
           <button
             onClick={onClose}

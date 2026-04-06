@@ -50,7 +50,8 @@ export function BoardListPage() {
 
       {/* Header — 全宽 */}
       <header className="sticky top-0 z-50 bg-bg border-b border-ds-border-2">
-        <div className="max-w-[1060px] mx-auto h-[52px] flex items-center gap-3 px-5">
+        <div className="max-w-[1060px] mx-auto h-[52px] relative flex items-center px-5">
+          {/* 左：汉堡菜单 */}
           <button
             onClick={() => setSidebarOpen(true)}
             className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"
@@ -59,21 +60,27 @@ export function BoardListPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6h16.5M3.75 12h16.5M3.75 18h16.5"/>
             </svg>
           </button>
-          <span className="font-ui text-[15px] font-semibold text-ds-text tracking-tight flex-1">
-            AKB48 Fan Community
+
+          {/* 中：标题绝对居中 */}
+          <span className="absolute left-1/2 -translate-x-1/2 font-ui text-[15px] font-semibold text-ds-text tracking-tight pointer-events-none">
+            Ota Kit
           </span>
-          {user ? (
-            <span className="font-ui text-[13px] font-medium text-ds-text-2 px-3 h-[30px] flex items-center shrink-0">
-              {user.nickname}
-            </span>
-          ) : (
-            <button
-              onClick={() => setAuthOpen(true)}
-              className="font-ui text-[13px] font-medium text-ds-text-2 border border-ds-border hover:bg-bg-2 rounded-sm px-3 h-[30px] shrink-0"
-            >
-              ログイン
-            </button>
-          )}
+
+          {/* 右：用户/登录 */}
+          <div className="ml-auto shrink-0">
+            {user ? (
+              <span className="font-ui text-[13px] font-medium text-ds-text-2 px-3 h-[30px] flex items-center">
+                {user.nickname}
+              </span>
+            ) : (
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="font-ui text-[13px] font-medium text-ds-text-2 border border-ds-border hover:bg-bg-2 rounded-sm px-3 h-[30px]"
+              >
+                ログイン
+              </button>
+            )}
+          </div>
         </div>
       </header>
 
