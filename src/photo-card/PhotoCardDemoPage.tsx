@@ -5,39 +5,9 @@ import { PhotoCardLightbox } from './PhotoCardLightbox'  // PhotoCardLightbox: �
 // ── Demo card data (AKB48 members with image color palettes) ──────────────
 
 const DEMO_CARDS: PhotoCardData[][] = [
-  // Stack 1: 柏木由紀 (実写真)
+  // 柏木由紀 (実写真)
   [
     { id: 'yuki-k', memberName: '柏木 由紀', romaji: 'YUKI.K', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FDA4AF', gradientTo: '#9D174D', imageUrl: '/cards/card-01.jpg' },
-    { id: 'yuki-k-b1', memberName: '岡田 奈々', romaji: 'NANA.O', edition: '2026 Spring', team: 'Team 4', gradientFrom: '#BBF7D0', gradientTo: '#065F46' },
-    { id: 'yuki-k-b2', memberName: '横山 由依', romaji: 'YUI.Y', edition: '2026 Spring', team: 'Team K', gradientFrom: '#BAE6FD', gradientTo: '#075985' },
-  ],
-
-  // Stack 2: 横山由依 (sky blue)
-  [
-    { id: 'yui-y', memberName: '横山 由依', romaji: 'YUI.Y', edition: '2026 Spring', team: 'Team K', gradientFrom: '#BAE6FD', gradientTo: '#0369A1' },
-    { id: 'yui-y-b1', memberName: '村山 彩希', romaji: 'YUIRI.M', edition: '2026 Spring', team: 'Team 4', gradientFrom: '#C7D2FE', gradientTo: '#3730A3' },
-    { id: 'yui-y-b2', memberName: '込山 榛香', romaji: 'HARUKA.K', edition: '2026 Spring', team: 'Team K', gradientFrom: '#99F6E4', gradientTo: '#0F766E' },
-  ],
-
-  // Stack 3: 向井地美音 (purple)
-  [
-    { id: 'mion-m', memberName: '向井地 美音', romaji: 'MION.M', edition: '2026 Spring', team: 'Team A', gradientFrom: '#DDD6FE', gradientTo: '#6D28D9' },
-    { id: 'mion-m-b1', memberName: '本田 仁美', romaji: 'HITOMI.H', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FBCFE8', gradientTo: '#9D174D' },
-    { id: 'mion-m-b2', memberName: '小栗 有以', romaji: 'YUI.O', edition: '2026 Spring', team: 'Team 8', gradientFrom: '#FDE68A', gradientTo: '#92400E' },
-  ],
-
-  // Stack 4: 岡田奈々 (emerald)
-  [
-    { id: 'nana-o', memberName: '岡田 奈々', romaji: 'NANA.O', edition: '2026 Spring', team: 'Team 4', gradientFrom: '#6EE7B7', gradientTo: '#065F46' },
-    { id: 'nana-o-b1', memberName: '久保 怜音', romaji: 'REON.K', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FED7AA', gradientTo: '#9A3412' },
-    { id: 'nana-o-b2', memberName: '柏木 由紀', romaji: 'YUKI.K', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FDA4AF', gradientTo: '#9D174D' },
-  ],
-
-  // Stack 5: 小栗有以 (amber gold)
-  [
-    { id: 'yui-o', memberName: '小栗 有以', romaji: 'YUI.O', edition: '2026 Spring', team: 'Team 8', gradientFrom: '#FDE68A', gradientTo: '#B45309' },
-    { id: 'yui-o-b1', memberName: '向井地 美音', romaji: 'MION.M', edition: '2026 Spring', team: 'Team A', gradientFrom: '#DDD6FE', gradientTo: '#6D28D9' },
-    { id: 'yui-o-b2', memberName: '岡田 奈々', romaji: 'NANA.O', edition: '2026 Spring', team: 'Team 4', gradientFrom: '#6EE7B7', gradientTo: '#065F46' },
   ],
 ]
 
