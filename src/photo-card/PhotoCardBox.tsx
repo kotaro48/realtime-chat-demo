@@ -11,6 +11,7 @@ export interface PhotoCardData {
   gradientFrom: string  // CSS color for gradient start
   gradientTo: string    // CSS color for gradient end
   team: string          // e.g. "Team B"
+  imageUrl?: string     // 実写真 URL（省略時は抽象グラデーション）
 }
 
 // ── Card face content ──────────────────────────────────────────────────────
@@ -20,54 +21,68 @@ export function CardFace({ card }: { card: PhotoCardData }) {
     <div
       className="w-full h-full flex flex-col relative overflow-hidden"
       style={{
-        background: `
-          linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.12) 100%),
-          radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.25) 0%, transparent 50%),
-          linear-gradient(160deg, ${card.gradientFrom} 0%, ${card.gradientTo} 100%)
-        `,
+        background: card.imageUrl
+          ? '#000'
+          : `
+            linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 40%, transparent 60%, rgba(0,0,0,0.12) 100%),
+            radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.25) 0%, transparent 50%),
+            linear-gradient(160deg, ${card.gradientFrom} 0%, ${card.gradientTo} 100%)
+          `,
       }}
     >
-      {/* Edition label */}
-      <div className="px-2.5 pt-2.5 flex items-center justify-between">
+      {/* 実写真モード */}
+      {card.imageUrl && (
+        <img
+          src={card.imageUrl}
+          alt={card.memberName}
+          className="absolute inset-0 w-full h-full object-cover object-top"
+        />
+      )}
+
+      {/* Edition label — 実写真時は上部オーバーレイ */}
+      <div className="relative z-10 px-2.5 pt-2.5 flex items-center justify-between">
         <span
           className="font-mono text-[8px] tracking-[0.15em] uppercase"
-          style={{ color: 'rgba(255,255,255,0.65)' }}
+          style={{ color: 'rgba(255,255,255,0.65)', textShadow: card.imageUrl ? '0 1px 3px rgba(0,0,0,0.6)' : 'none' }}
         >
           {card.edition}
         </span>
         <span
           className="font-mono text-[8px] tracking-wider"
-          style={{ color: 'rgba(255,255,255,0.5)' }}
+          style={{ color: 'rgba(255,255,255,0.5)', textShadow: card.imageUrl ? '0 1px 3px rgba(0,0,0,0.6)' : 'none' }}
         >
-          AKB48
+          Ota Kit
         </span>
       </div>
 
-      {/* Photo area: abstract radial highlight suggesting a portrait */}
-      <div className="flex-1 flex items-center justify-center relative">
-        {/* Outer glow ring */}
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 80, height: 80,
-            background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
-          }}
-        />
-        {/* Inner highlight (simulates face/light source) */}
-        <div
-          className="rounded-full"
-          style={{
-            width: 52, height: 64,
-            background: 'radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 60%, transparent 100%)',
-            boxShadow: '0 0 20px rgba(255,255,255,0.15)',
-          }}
-        />
-      </div>
+      {/* 抽象グラデーション（実写真なしのとき） */}
+      {!card.imageUrl && (
+        <div className="flex-1 flex items-center justify-center relative">
+          <div
+            className="absolute rounded-full"
+            style={{
+              width: 80, height: 80,
+              background: 'radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%)',
+            }}
+          />
+          <div
+            className="rounded-full"
+            style={{
+              width: 52, height: 64,
+              background: 'radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.08) 60%, transparent 100%)',
+              boxShadow: '0 0 20px rgba(255,255,255,0.15)',
+            }}
+          />
+        </div>
+      )}
+
+      {/* 実写真のとき：中央スペーサー */}
+      {card.imageUrl && <div className="flex-1" />}
 
       {/* Name area */}
       <div
-        className="px-3 py-2"
-        style={{ background: 'rgba(0,0,0,0.25)', backdropFilter: 'blur(4px)' }}
+        className="relative z-10 px-3 py-2"
+        style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)' }}
       >
         <p className="font-jp text-white font-bold text-[13px] leading-tight tracking-wide">
           {card.memberName}

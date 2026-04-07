@@ -5,9 +5,9 @@ import { PhotoCardLightbox } from './PhotoCardLightbox'  // PhotoCardLightbox: �
 // ── Demo card data (AKB48 members with image color palettes) ──────────────
 
 const DEMO_CARDS: PhotoCardData[][] = [
-  // Stack 1: 柏木由紀 (pink rose)
+  // Stack 1: 柏木由紀 (実写真)
   [
-    { id: 'yuki-k', memberName: '柏木 由紀', romaji: 'YUKI.K', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FDA4AF', gradientTo: '#9D174D' },
+    { id: 'yuki-k', memberName: '柏木 由紀', romaji: 'YUKI.K', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FDA4AF', gradientTo: '#9D174D', imageUrl: '/cards/card-01.jpg' },
     { id: 'yuki-k-b1', memberName: '岡田 奈々', romaji: 'NANA.O', edition: '2026 Spring', team: 'Team 4', gradientFrom: '#BBF7D0', gradientTo: '#065F46' },
     { id: 'yuki-k-b2', memberName: '横山 由依', romaji: 'YUI.Y', edition: '2026 Spring', team: 'Team K', gradientFrom: '#BAE6FD', gradientTo: '#075985' },
   ],
