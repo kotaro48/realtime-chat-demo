@@ -241,7 +241,7 @@ export function PhotoCardBox({ cards, label, onCardClick }: Props) {
               boxShadow: '0 16px 40px rgba(0,0,0,0.28)',
             }}
             animate={isMobile
-              ? { y: mobileRevealed ? -PULL_DISTANCE : 0, scale: mobileRevealed ? 1.03 : 1 }
+              ? { y: mobileRevealed ? -PULL_DISTANCE : 0 }
               : undefined
             }
             transition={{ type: 'tween', ease: [0.25, 0, 0, 1], duration: 0.30 }}
@@ -249,7 +249,10 @@ export function PhotoCardBox({ cards, label, onCardClick }: Props) {
             onMouseLeave={handleMouseLeave}
             onClick={(e) => {
               e.stopPropagation()          // 阻止冒泡到容器的 mobileRevealed toggle
-              setMobileRevealed(false)     // 打开 lightbox 前先把卡片缩回去
+              if (isMobile && !mobileRevealed) {
+                setMobileRevealed(true)
+                return
+              }
               onCardClick?.(mainCard)
             }}
           >
