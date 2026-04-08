@@ -68,11 +68,15 @@ export function DiscoverPage() {
     return () => observer.disconnect()
   }, [])
 
+  // API 返回值守卫：非数组时回退到 []
+  const safeArray = (data: unknown): Thread[] =>
+    Array.isArray(data) ? data : []
+
   // 初次加载版块列表
   useEffect(() => {
     fetch('/api/boards')
       .then(r => r.json())
-      .then(setBoards)
+      .then(d => setBoards(Array.isArray(d) ? d : []))
   }, [])
 
   // 切换版块 / 初始时加载 trending & recent
@@ -80,10 +84,10 @@ export function DiscoverPage() {
     const q = selectedBoard ? `&board=${selectedBoard}` : ''
     fetch(`/api/trending?limit=6${q}`)
       .then(r => r.json())
-      .then(setTrending)
+      .then(d => setTrending(safeArray(d)))
     fetch(`/api/threads/recent?limit=${RECENT_LIMIT}&offset=0${q}`)
       .then(r => r.json())
-      .then(data => { setRecent(data); setRecentOffset(RECENT_LIMIT) })
+      .then(d => { setRecent(safeArray(d)); setRecentOffset(RECENT_LIMIT) })
   }, [selectedBoard])
 
   // 加载更多最新话题
@@ -91,8 +95,8 @@ export function DiscoverPage() {
     const q = selectedBoard ? `&board=${selectedBoard}` : ''
     fetch(`/api/threads/recent?limit=${RECENT_LIMIT}&offset=${recentOffset}${q}`)
       .then(r => r.json())
-      .then(data => {
-        setRecent(prev => [...prev, ...data])
+      .then(d => {
+        setRecent(prev => [...prev, ...safeArray(d)])
         setRecentOffset(prev => prev + RECENT_LIMIT)
       })
   }
