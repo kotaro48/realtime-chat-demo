@@ -1,11 +1,17 @@
 import { useState } from 'react'  // react: 状态管理
 import { useNavigate, useLocation } from 'react-router-dom'  // react-router-dom: 路由跳转和当前路径
-import { LayoutList, MessageCircle, Bookmark, Ellipsis } from 'lucide-react'  // lucide-react: tab 图标
+import { Compass, LayoutList, MessageCircle, Ellipsis } from 'lucide-react'  // lucide-react: tab 图标
 
 const TABS = [
   {
     path: '/',
-    match: (p: string) => p === '/' || p.startsWith('/board'),
+    match: (p: string) => p === '/',
+    label: '見つける',
+    Icon: Compass,
+  },
+  {
+    path: '/board',
+    match: (p: string) => p.startsWith('/board'),
     label: '掲示板',
     Icon: LayoutList,
   },
@@ -15,16 +21,11 @@ const TABS = [
     label: 'チャット',
     Icon: MessageCircle,
   },
-  {
-    path: '/bookmarks',
-    match: (p: string) => p.startsWith('/bookmarks'),
-    label: '収藏',
-    Icon: Bookmark,
-  },
 ]
 
-// 三点菜单里的额外页面入口
+// 三点菜单里的额外页面入口（収藏移至此处）
 const MORE_ITEMS = [
+  { path: '/bookmarks',  label: '収藏' },
   { path: '/mypage',     label: 'マイページ' },
   { path: '/photo-demo', label: 'デジタル生写真' },
   { path: '/venue',      label: '握手会地図' },

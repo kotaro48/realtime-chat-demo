@@ -34,23 +34,6 @@ export function PhotoCardDemoPage() {
         </div>
       </div>
 
-      {/* Instruction banner */}
-      <div className="max-w-[860px] mx-auto px-5 pt-6 pb-4">
-        <div className="bg-ds-accent-bg border border-ds-accent/20 rounded-md px-4 py-3 flex items-start gap-3">
-          <div
-            className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-            style={{ background: 'rgb(var(--accent))' }}
-          />
-          <div>
-            <p className="font-ui text-[12px] font-medium text-ds-accent mb-0.5">
-              PC: ホバーで生写真を引き出す
-            </p>
-            <p className="font-ui text-[11px] text-ds-text-3">
-              スマートフォン: タップで切り替え
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Card grid */}
       <div className="max-w-[860px] mx-auto px-5 pt-2">
@@ -70,24 +53,6 @@ export function PhotoCardDemoPage() {
           ))}
         </div>
 
-        {/* Mechanics explanation */}
-        <div className="mt-16 border-t border-ds-border-2 pt-8">
-          <p className="font-mono text-[10px] uppercase tracking-[0.15em] text-ds-text-4 mb-4">
-            Animation Notes
-          </p>
-          <div className="grid sm:grid-cols-3 gap-4">
-            {[
-              { title: '3D Perspective', desc: 'CSS perspective(700px) + Framer Motion rotateX で奥行きを表現' },
-              { title: 'Sleeve Trick', desc: 'z-index 20 のスリーブ前面がカード底部を隠し、引き出す幻想を作る' },
-              { title: 'Interrupt Safe', desc: 'Framer Motion がアニメーション途中のマウスアウトを安全に処理' },
-            ].map(item => (
-              <div key={item.title} className="bg-bg-2 rounded-md p-4">
-                <p className="font-ui text-[12px] font-semibold text-ds-text mb-1">{item.title}</p>
-                <p className="font-ui text-[11px] text-ds-text-3 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
 

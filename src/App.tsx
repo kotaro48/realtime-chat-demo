@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom'  // react-router-dom: 路由管理
 import { AnimatePresence } from 'framer-motion'  // framer-motion: 路由退场动画
 import { MotionConfig } from 'framer-motion'     // framer-motion: 全局 reducedMotion 支持
+import { DiscoverPage } from './discover/DiscoverPage'
 import { BoardListPage } from './forum/BoardListPage'
 import { ThreadListPage } from './forum/ThreadListPage'
 import { ThreadDetailPage } from './forum/ThreadDetailPage'
@@ -29,7 +30,8 @@ function AnimatedRoutes() {
     <AnimatePresence mode="wait" initial={false}>
       <Routes location={location} key={location.pathname}>
         <Route element={<MainLayout />}>
-          <Route path="/"                              element={<BoardListPage />} />
+          <Route path="/"                              element={<DiscoverPage />} />
+          <Route path="/board"                         element={<BoardListPage />} />
           <Route path="/board/:slug"                   element={<ThreadListPage />} />
           <Route path="/board/:slug/thread/:threadId"  element={<ThreadDetailPage />} />
           <Route path="/chat"                          element={<ChatPage />} />

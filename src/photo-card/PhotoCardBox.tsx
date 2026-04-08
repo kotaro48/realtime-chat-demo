@@ -16,7 +16,7 @@ export interface PhotoCardData {
 
 // ── Card face content ──────────────────────────────────────────────────────
 
-export function CardFace({ card }: { card: PhotoCardData }) {
+export function CardFace({ card, hideNameBadge }: { card: PhotoCardData; hideNameBadge?: boolean }) {
   return (
     <div
       className="w-full h-full flex flex-col relative overflow-hidden"
@@ -79,8 +79,8 @@ export function CardFace({ card }: { card: PhotoCardData }) {
       {/* 実写真のとき：中央スペーサー */}
       {card.imageUrl && <div className="flex-1" />}
 
-      {/* Name area */}
-      <div
+      {/* Name area — Lightbox 时隐藏（名字已在卡片下方单独显示） */}
+      {!hideNameBadge && <div
         className="relative z-10 px-3 py-2"
         style={{ background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(6px)' }}
       >
@@ -95,7 +95,7 @@ export function CardFace({ card }: { card: PhotoCardData }) {
             {card.team}
           </span>
         </div>
-      </div>
+      </div>}
     </div>
   )
 }
@@ -246,7 +246,11 @@ export function PhotoCardBox({ cards, label, onCardClick }: Props) {
             transition={{ type: 'tween', ease: [0.25, 0, 0, 1], duration: 0.30 }}
             onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-            onClick={() => onCardClick?.(mainCard)}
+            onClick={(e) => {
+              e.stopPropagation()          // 阻止冒泡到容器的 mobileRevealed toggle
+              setMobileRevealed(false)     // 打开 lightbox 前先把卡片缩回去
+              onCardClick?.(mainCard)
+            }}
           >
             <CardFace card={mainCard} />
           </motion.div>

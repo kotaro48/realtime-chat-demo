@@ -120,7 +120,7 @@ export function ThreadListPage() {
         <div className="max-w-[1060px] mx-auto h-[52px] relative flex items-center px-5">
           {/* 左：返回 */}
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/board')}
             className="w-9 h-9 flex items-center justify-center text-ds-text-3 hover:bg-bg-2 rounded-sm shrink-0"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">

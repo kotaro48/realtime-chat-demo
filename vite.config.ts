@@ -14,10 +14,10 @@ export default defineConfig({
     host: '0.0.0.0',  // 监听所有网卡，局域网手机可访问
     proxy: {
       // 将 /api 和 /auth 请求转发到后端 3000 端口
-      '/api': 'http://192.168.3.22:3000',
-      '/auth': 'http://192.168.3.22:3000',
+      '/api': 'http://localhost:3000',
+      '/auth': 'http://localhost:3000',
       '/socket.io': {
-        target: 'http://192.168.3.22:3000',
+        target: 'http://localhost:3000',
         ws: true,  // WebSocket プロキシを有効化（Socket.IO デフォルトパス）
       },
     },

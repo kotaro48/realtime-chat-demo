@@ -120,6 +120,15 @@
   }
 }
 
+/* 隐藏滚动条（横向 Chips 等场景） */
+.scrollbar-none {
+  scrollbar-width: none;          /* Firefox */
+  -ms-overflow-style: none;       /* IE/Edge */
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;                  /* Chrome/Safari */
+}
+
 /* ============================================================
    POST ENTER ANIMATION — Layer 3: 内容进入 200ms
    ============================================================ */

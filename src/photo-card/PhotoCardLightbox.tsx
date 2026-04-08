@@ -100,7 +100,7 @@ export function PhotoCardLightbox({ card, onClose }: Props) {
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
-              <CardFace card={card} />
+              <CardFace card={card} hideNameBadge />
 
               {/* 光泽层 — radial-gradient 随鼠标移动 */}
               <motion.div
