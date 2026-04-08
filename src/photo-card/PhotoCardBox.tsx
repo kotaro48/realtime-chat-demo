@@ -141,6 +141,11 @@ const PULL_DISTANCE = 72
 
 export function PhotoCardBox({ cards, label, onCardClick }: Props) {
   const [mobileRevealed, setMobileRevealed] = useState(false)
+  // 在 mount 时检测一次：触屏设备 hover:none → isMobile=true
+  // 避免每次 render 调用 matchMedia，也防止 whileHover 在触摸时误触发
+  const isMobile = useRef(
+    typeof window !== 'undefined' && window.matchMedia('(hover: none)').matches
+  ).current
 
   const mainCard = cards[0]
   const backCards = cards.slice(1, 3)
@@ -184,12 +189,8 @@ export function PhotoCardBox({ cards, label, onCardClick }: Props) {
         <div
           className="relative select-none"
           style={{ width: CONTAINER_W, height: CONTAINER_H }}
-          // Mobile tap to toggle
-          onClick={() => {
-            if (window.matchMedia('(hover: none)').matches) {
-              setMobileRevealed(v => !v)
-            }
-          }}
+          // 手机：点容器空白区切换抽出/缩回
+          onClick={() => { if (isMobile) setMobileRevealed(v => !v) }}
         >
           {/* ── Back cards (static, behind main card) ─────────────── */}
           {backCards.map((card, i) => {
@@ -233,15 +234,15 @@ export function PhotoCardBox({ cards, label, onCardClick }: Props) {
               rotateX: springX,
               rotateY: springY,
             }}
-            whileHover={{
+            // 电脑：whileHover 触发抽出；手机：禁用 whileHover 防止触摸时误触发闪屏
+            whileHover={isMobile ? undefined : {
               y: -PULL_DISTANCE,
               scale: 1.03,
               boxShadow: '0 16px 40px rgba(0,0,0,0.28)',
             }}
-            animate={
-              window.matchMedia('(hover: none)').matches
-                ? { y: mobileRevealed ? -PULL_DISTANCE : 0, scale: mobileRevealed ? 1.03 : 1 }
-                : undefined
+            animate={isMobile
+              ? { y: mobileRevealed ? -PULL_DISTANCE : 0, scale: mobileRevealed ? 1.03 : 1 }
+              : undefined
             }
             transition={{ type: 'tween', ease: [0.25, 0, 0, 1], duration: 0.30 }}
             onMouseMove={handleMouseMove}
