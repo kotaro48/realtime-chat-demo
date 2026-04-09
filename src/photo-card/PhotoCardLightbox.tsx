@@ -73,8 +73,8 @@ export function PhotoCardLightbox({ card, onClose }: Props) {
           transition={{ duration: 0.2 }}
           onClick={onClose}
         >
-          {/* 毛玻璃背景 */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
+          {/* 背景遮罩：先去掉 backdrop-blur，避免移动端 Safari 在全屏模糊时闪屏重绘 */}
+          <div className="absolute inset-0 bg-black/70" />
 
           {/* 卡片容器（perspective 在此层设置） */}
           <div
