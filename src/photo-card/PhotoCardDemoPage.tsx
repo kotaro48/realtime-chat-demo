@@ -4,6 +4,8 @@ import { PhotoCardLightbox } from './PhotoCardLightbox'  // PhotoCardLightbox: �
 
 // ── Demo card data (AKB48 members with image color palettes) ──────────────
 
+const DEPLOY_STAMP = 'Updated 2026-04-10 00:08 JST'
+
 const DEMO_CARDS: PhotoCardData[][] = [
   // 柏木由紀 (実写真)
   [
@@ -40,6 +42,9 @@ export function PhotoCardDemoPage() {
         {/* Section label */}
         <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-ds-text-4 mb-8">
           2026 Spring Collection
+        </p>
+        <p className="font-mono text-[10px] text-ds-text-4 mb-6">
+          {DEPLOY_STAMP}
         </p>
 
         <div className="flex flex-wrap gap-10 justify-center sm:justify-start">
