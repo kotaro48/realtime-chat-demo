@@ -4,7 +4,7 @@ import { PhotoCardLightbox } from './PhotoCardLightbox'  // PhotoCardLightbox: �
 
 // ── Demo card data (AKB48 members with image color palettes) ──────────────
 
-const DEPLOY_STAMP = 'Updated 2026-04-10 00:08 JST'
+const DEPLOY_STAMP = 'Updated 2026-04-10 00:20 JST'
 
 const DEMO_CARDS: PhotoCardData[][] = [
   // 柏木由紀 (実写真)

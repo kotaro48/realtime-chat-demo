@@ -85,6 +85,9 @@ export function PhotoCardLightbox({ card, onClose }: Props) {
             {/* 3D 倾斜卡片 */}
             <motion.div
               className="relative overflow-hidden rounded-xl cursor-grab"
+              initial={{ scale: 0.985 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 width: CARD_W,
                 height: CARD_H,
