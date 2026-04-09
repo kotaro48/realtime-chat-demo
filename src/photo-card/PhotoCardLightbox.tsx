@@ -67,10 +67,10 @@ export function PhotoCardLightbox({ card, onClose }: Props) {
         // 全屏遮罩 — 点击背景关闭
         <motion.div
           className="fixed inset-0 z-[100] flex items-center justify-center"
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.2 }}
+          exit={{ opacity: 1 }}
+          transition={{ duration: 0 }}
           onClick={onClose}
         >
           {/* 背景遮罩：先去掉 backdrop-blur，避免移动端 Safari 在全屏模糊时闪屏重绘 */}
