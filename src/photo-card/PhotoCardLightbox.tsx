@@ -77,13 +77,9 @@ export function PhotoCardLightbox({ card, onClose }: Props) {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-xl" />
 
           {/* 卡片容器（perspective 在此层设置） */}
-          <motion.div
+          <div
             className="relative z-10 flex flex-col items-center gap-4"
             style={{ perspective: '1000px' }}
-            initial={{ scale: 0.8, opacity: 0, y: 20 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.8, opacity: 0, y: 20 }}
-            transition={{ type: 'spring', stiffness: 380, damping: 28 }}
             onClick={e => e.stopPropagation()}
           >
             {/* 3D 倾斜卡片 */}
@@ -119,7 +115,7 @@ export function PhotoCardLightbox({ card, onClose }: Props) {
             <p className="font-mono text-white/30 text-[10px] tracking-widest uppercase">
               ESC or click outside to close
             </p>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
