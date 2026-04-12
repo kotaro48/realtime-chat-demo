@@ -36,6 +36,7 @@ export function BoardListPage() {
     try { return JSON.parse(localStorage.getItem('akb48_user') ?? 'null') } catch { return null }
   })
   const [authOpen, setAuthOpen] = useState(false)
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const [scrolled, setScrolled] = useState(false)
   const largeTitleRef = useRef<HTMLHeadingElement>(null)
 
@@ -81,18 +82,26 @@ export function BoardListPage() {
           </span>
 
           {/* 右：用户/登录 */}
-          <div className="ml-auto shrink-0">
+          <div className="ml-auto flex items-center gap-2 shrink-0">
             {user ? (
-              <span className="font-ui text-[13px] font-medium text-ds-text-2 px-3 h-[30px] flex items-center">
+              <span className="h-9 px-3 rounded-xl font-ui text-[13px] font-medium text-ds-text-2 bg-bg-2 flex items-center">
                 {user.nickname}
               </span>
             ) : (
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="font-ui text-[13px] font-medium text-ds-text-2 border border-ds-border hover:bg-bg-2 rounded-sm px-3 h-[30px]"
-              >
-                ログイン
-              </button>
+              <>
+                <button
+                  onClick={() => { setAuthTab('login'); setAuthOpen(true) }}
+                  className="h-9 px-2 font-ui text-[13px] font-semibold text-ds-text-2"
+                >
+                  ログイン
+                </button>
+                <button
+                  onClick={() => { setAuthTab('register'); setAuthOpen(true) }}
+                  className="h-9 px-4 rounded-xl font-ui text-[13px] font-semibold text-white bg-ds-text"
+                >
+                  新規登録
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -170,6 +179,7 @@ export function BoardListPage() {
       <AuthModal
         open={authOpen}
         onClose={() => setAuthOpen(false)}
+        defaultTab={authTab}
         onSuccess={me => { setUser(me); setAuthOpen(false) }}
       />
     </div>

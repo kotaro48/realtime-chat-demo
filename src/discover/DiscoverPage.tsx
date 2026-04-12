@@ -17,7 +17,7 @@ const SLUG_TO_NAME: Record<string, string> = {
   photo:     '写真',
 }
 
-const DEPLOY_STAMP = 'Updated 2026-04-12 15:08 JST'
+const DEPLOY_STAMP = 'Updated 2026-04-12 15:16 JST'
 
 interface Board {
   slug: string

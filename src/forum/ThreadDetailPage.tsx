@@ -238,6 +238,7 @@ export function ThreadDetailPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [user, setUser] = useState<AuthUser | null>(getUser)
   const [authOpen, setAuthOpen] = useState(false)
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const [isBookmarked, setIsBookmarked] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -285,7 +286,7 @@ export function ThreadDetailPage() {
   }, [slug, threadId])
 
   const toggleBookmark = () => {
-    if (!user) { setAuthOpen(true); return }
+    if (!user) { setAuthTab('login'); setAuthOpen(true); return }
     const method = isBookmarked ? 'DELETE' : 'POST'
     setIsBookmarked(!isBookmarked)  // 乐观更新
     fetch(`/api/bookmarks/${threadId}`, { method, headers: authHeaders() })
@@ -448,6 +449,7 @@ export function ThreadDetailPage() {
       <AuthModal
         open={authOpen}
         onClose={() => setAuthOpen(false)}
+        defaultTab={authTab}
         onSuccess={me => { setUser(me); setAuthOpen(false) }}
       />
 
@@ -500,12 +502,20 @@ export function ThreadDetailPage() {
               <span className="font-ui text-[13px] text-ds-text-3">
                 返信するにはログインが必要です
               </span>
-              <button
-                className="font-ui text-[13px] font-medium text-white bg-primary hover:bg-primary/90 rounded-sm px-4 h-9 shrink-0"
-                onClick={() => setAuthOpen(true)}
-              >
-                ログイン
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  className="h-9 px-2 font-ui text-[13px] font-semibold text-ds-text-2"
+                  onClick={() => { setAuthTab('login'); setAuthOpen(true) }}
+                >
+                  ログイン
+                </button>
+                <button
+                  className="h-9 px-4 rounded-xl font-ui text-[13px] font-semibold text-white bg-ds-text"
+                  onClick={() => { setAuthTab('register'); setAuthOpen(true) }}
+                >
+                  新規登録
+                </button>
+              </div>
             </div>
           )}
         </div>
