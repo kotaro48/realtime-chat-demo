@@ -6,6 +6,8 @@
  */
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'  // react-router-dom: 帖子跳转
+import { AuthModal } from '../components/AuthModal'  // AuthModal：登录/注册弹窗
+import { getUser, type AuthUser } from '../lib/auth'  // auth：读取当前登录用户
 
 // 版块名映射（slug → 日文显示名）
 const SLUG_TO_NAME: Record<string, string> = {
@@ -14,6 +16,8 @@ const SLUG_TO_NAME: Record<string, string> = {
   handshake: '握手会',
   photo:     '写真',
 }
+
+const DEPLOY_STAMP = 'Updated 2026-04-12 15:08 JST'
 
 interface Board {
   slug: string
@@ -47,12 +51,15 @@ function fmt(n: number): string {
 
 export function DiscoverPage() {
   const navigate = useNavigate()
+  const [user, setUser] = useState<AuthUser | null>(() => getUser())
   const [boards, setBoards] = useState<Board[]>([])
   const [trending, setTrending] = useState<Thread[]>([])
   const [recent, setRecent] = useState<Thread[]>([])
   const [selectedBoard, setSelectedBoard] = useState<string | null>(null)
   const [recentOffset, setRecentOffset] = useState(0)
   const [scrolled, setScrolled] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
+  const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const largeTitleRef = useRef<HTMLHeadingElement>(null)
   const RECENT_LIMIT = 15
 
@@ -111,11 +118,37 @@ export function DiscoverPage() {
   return (
     <div className="min-h-dvh bg-bg">
       {/* Sticky Header */}
-      <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'bg-bg border-b border-ds-border-2' : 'bg-transparent'}`}>
-        <div className="h-[52px] flex items-center px-4">
+      <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'bg-bg' : 'bg-transparent'}`}>
+        <div className="h-[52px] flex items-center px-4 gap-3">
           <span className={`font-jp text-[15px] font-semibold text-ds-text transition-opacity duration-200 ${scrolled ? 'opacity-100' : 'opacity-0'}`}>
             見つける
           </span>
+
+          <div className="ml-auto flex items-center gap-2 shrink-0">
+            {user ? (
+              <button
+                onClick={() => navigate('/mypage')}
+                className="h-9 px-3 rounded-xl font-ui text-[13px] font-medium text-ds-text-2 bg-bg-2"
+              >
+                {user.nickname}
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => { setAuthTab('login'); setAuthOpen(true) }}
+                  className="h-9 px-2 font-ui text-[13px] font-semibold text-ds-text-2"
+                >
+                  ログイン
+                </button>
+                <button
+                  onClick={() => { setAuthTab('register'); setAuthOpen(true) }}
+                  className="h-9 px-4 rounded-xl font-ui text-[13px] font-semibold text-white bg-ds-text"
+                >
+                  新規登録
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
@@ -124,6 +157,9 @@ export function DiscoverPage() {
         <h1 ref={largeTitleRef} className="font-jp text-[28px] font-bold text-ds-text pt-2 pb-4 leading-tight">
           見つける
         </h1>
+        <p className="font-mono text-[10px] text-ds-text-4 pb-4">
+          {DEPLOY_STAMP}
+        </p>
 
         {/* 版块 Filter Chips — 横向滚动 */}
         <div className="flex gap-2 overflow-x-auto pb-4 scrollbar-none -mx-4 px-4">
@@ -275,6 +311,17 @@ export function DiscoverPage() {
           </div>
         </section>
       </div>
+
+      <AuthModal
+        open={authOpen}
+        onClose={() => setAuthOpen(false)}
+        defaultTab={authTab}
+        onSuccess={me => {
+          localStorage.setItem('akb48_user', JSON.stringify(me))
+          setUser(me)
+          setAuthOpen(false)
+        }}
+      />
     </div>
   )
 }
