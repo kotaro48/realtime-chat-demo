@@ -1,21 +1,15 @@
 import { useEffect, useState, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'  // react-router-dom: 路由跳转
-import { motion } from 'framer-motion'          // framer-motion: 列表错开入场动画
+import { useNavigate } from 'react-router-dom'          // react-router-dom: 路由跳转
+import { motion } from 'framer-motion'                  // framer-motion: 列表错开入场动画
 import { MessageSquare, Globe, Handshake, Camera, LayoutGrid } from 'lucide-react'  // lucide-react: 版块图标
-import { Sidebar } from '../components/Sidebar'  // Sidebar: 左滑侧边栏，含全局导航
-import { AuthModal } from '../components/AuthModal'  // AuthModal: 登录/注册弹窗
+import { Sidebar } from '../components/Sidebar'          // Sidebar: 左滑侧边栏，含全局导航
+import { AuthModal } from '../components/AuthModal'      // AuthModal: 登录/注册弹窗
 import { RightSidebar } from '../components/RightSidebar'  // RightSidebar: 桌面端右侧栏
 import { PageWrapper } from '../components/PageWrapper'  // PageWrapper: 页面入场动画包装器
 import { staggerContainer, staggerItem, hoverLift, tapPress } from '../lib/motion'  // motion: Apple Spring 配置
-import type { AuthUser } from '../lib/auth'  // auth: 用户类型
-
-interface Board {
-  id: string
-  slug: string
-  name: string
-  description: string | null
-  _count: { threads: number }
-}
+import { useAuth } from '../context/AuthContext'         // AuthContext: 全局登录状态
+import { api } from '../services/api'                   // api: 统一 HTTP 封装
+import type { Board } from '../types'                   // types: 共享类型
 
 // 版块图标 — 用 Lucide 线条图标，颜色跟随 text-ds-text-3
 function BoardIcon({ slug }: { slug: string }) {
@@ -29,12 +23,10 @@ function BoardIcon({ slug }: { slug: string }) {
 
 export function BoardListPage() {
   const navigate = useNavigate()
+  const { user, login } = useAuth()
   const [boards, setBoards] = useState<Board[]>([])
   const [loading, setLoading] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [user, setUser] = useState<AuthUser | null>(() => {
-    try { return JSON.parse(localStorage.getItem('akb48_user') ?? 'null') } catch { return null }
-  })
   const [authOpen, setAuthOpen] = useState(false)
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const [scrolled, setScrolled] = useState(false)
@@ -53,15 +45,15 @@ export function BoardListPage() {
   }, [])
 
   useEffect(() => {
-    fetch('/api/boards')
-      .then(r => r.json())
+    api.get<Board[]>('/api/boards')
       .then(data => { setBoards(data); setLoading(false) })
+      .catch(() => setLoading(false))
   }, [])
 
 
   return (
     <div className="min-h-screen bg-page-bg">
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={() => setUser(null)} />
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} onLogout={() => {}} />
 
       {/* Header — 透明起始，滚动后显示背景+边框 */}
       <header className={`sticky top-0 z-50 transition-all duration-200 ${scrolled ? 'bg-bg border-b border-ds-border-2' : 'bg-transparent'}`}>
@@ -175,12 +167,11 @@ export function BoardListPage() {
         </aside>
       </div>
 
-
       <AuthModal
         open={authOpen}
         onClose={() => setAuthOpen(false)}
         defaultTab={authTab}
-        onSuccess={me => { setUser(me); setAuthOpen(false) }}
+        onSuccess={me => { login(me); setAuthOpen(false) }}
       />
     </div>
   )

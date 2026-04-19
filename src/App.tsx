@@ -8,17 +8,25 @@ import { ThreadDetailPage } from './forum/ThreadDetailPage'
 import { MyPage } from './mypage/MyPage'
 import { ChatPage } from './chat/ChatPage'
 import { BottomTabBar } from './components/BottomTabBar'
+import { LeftNav } from './components/LeftNav'
 import { BookmarkListPage } from './bookmarks/BookmarkListPage'
 import { PhotoCardDemoPage } from './photo-card/PhotoCardDemoPage'
 import { VenueMapPage } from './venue-map/VenueMapPage'
 import { DesignSystemPage } from './design-system/DesignSystemPage'
 
-// 带 Bottom Tab Bar 的页面布局
+// 主要页面布局：
+// 桌面端（md 以上）左侧 220px LeftNav，主内容让出左边距
+// 移动端沿用 BottomTabBar（底部 52px）
 function MainLayout() {
   return (
     <>
-      <Outlet />
-      <BottomTabBar />
+      <LeftNav />
+      <div className="md:ml-[220px]">
+        <Outlet />
+      </div>
+      <div className="md:hidden">
+        <BottomTabBar />
+      </div>
     </>
   )
 }
@@ -36,10 +44,10 @@ function AnimatedRoutes() {
           <Route path="/board/:slug/thread/:threadId"  element={<ThreadDetailPage />} />
           <Route path="/chat"                          element={<ChatPage />} />
           <Route path="/bookmarks"                     element={<BookmarkListPage />} />
+          <Route path="/mypage"                        element={<MyPage />} />
+          <Route path="/photo-demo"                    element={<PhotoCardDemoPage />} />
+          <Route path="/venue"                         element={<VenueMapPage />} />
         </Route>
-        <Route path="/mypage"         element={<MyPage />} />
-        <Route path="/photo-demo"     element={<PhotoCardDemoPage />} />
-        <Route path="/venue"          element={<VenueMapPage />} />
         <Route path="/design-system"  element={<DesignSystemPage />} />
       </Routes>
     </AnimatePresence>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'  // react-router-dom: 登录过期时跳回首页
-import { authHeaders } from '../lib/auth'  // auth: JWT 请求头
+import { api } from '../services/api'           // api: 统一 HTTP 封装（自动处理 401）
 
 // ── 类型定义 ──────────────────────────────────────────────
 
@@ -301,32 +301,30 @@ export function HandshakeGrid() {
   const [memberModalOpen, setMemberModalOpen] = useState(false)
 
   const load = async () => {
-    const [gridRes, membersRes] = await Promise.all([
-      fetch('/api/handshake/grid', { headers: authHeaders() }),
-      fetch('/api/members'),
-    ])
-    // token 过期或未登录时清除本地 auth 状态并跳回首页
-    if (gridRes.status === 401) {
-      localStorage.removeItem('akb48_token')
-      localStorage.removeItem('akb48_user')
-      navigate('/')
-      return
+    try {
+      const [gridData, membersData] = await Promise.all([
+        api.get<GridData>('/api/handshake/grid'),
+        api.get<AllMember[]>('/api/members'),
+      ])
+      setGrid(gridData)
+      setAllMembers(Array.isArray(membersData) ? membersData : [])
+    } catch (err) {
+      // api.ts 在 401 时派发 auth:expired 事件，AuthContext 已处理登出
+      // 此处仅跳回首页即可
+      if (err instanceof Error && err.message === 'LOGIN_REQUIRED') {
+        navigate('/')
+        return
+      }
+    } finally {
+      setLoading(false)
     }
-    const [gridData, membersData] = await Promise.all([gridRes.json(), membersRes.json()])
-    setGrid(gridData)
-    setAllMembers(Array.isArray(membersData) ? membersData : [])
-    setLoading(false)
   }
 
   useEffect(() => { load() }, [])
 
   // ── 操作：新建活动 ────────────────────────────────────────
   async function handleCreateEvent(name: string, date: string) {
-    await fetch('/api/handshake/events', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ name, date }),
-    })
+    await api.post('/api/handshake/events', { name, date })
     setNewEventOpen(false)
     await load()
   }
@@ -334,43 +332,29 @@ export function HandshakeGrid() {
   // ── 操作：删除活动（长按列头）────────────────────────────
   async function handleDeleteEvent(eventId: string, eventName: string) {
     if (!confirm(`「${eventName}」を削除しますか？\n（枚数記録もすべて削除されます）`)) return
-    await fetch(`/api/handshake/events/${eventId}`, {
-      method: 'DELETE',
-      headers: authHeaders(),
-    })
+    await api.delete(`/api/handshake/events/${eventId}`)
     await load()
   }
 
   // ── 操作：添加/移除关注成员 ───────────────────────────────
   async function handleAddMember(memberId: string) {
-    await fetch('/api/handshake/watched', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ memberId }),
-    })
+    await api.post('/api/handshake/watched', { memberId })
     await load()
   }
 
   async function handleRemoveMember(memberId: string) {
-    await fetch(`/api/handshake/watched/${memberId}`, {
-      method: 'DELETE',
-      headers: authHeaders(),
-    })
+    await api.delete(`/api/handshake/watched/${memberId}`)
     await load()
   }
 
   // ── 操作：保存单元格 ─────────────────────────────────────
   async function handleSaveTicket(count: number, note: string) {
     if (!cellModal) return
-    await fetch('/api/handshake/tickets', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({
-        eventId: cellModal.event.id,
-        memberId: cellModal.member.id,
-        count,
-        note: note || null,
-      }),
+    await api.put('/api/handshake/tickets', {
+      eventId: cellModal.event.id,
+      memberId: cellModal.member.id,
+      count,
+      note: note || null,
     })
     setCellModal(null)
     await load()

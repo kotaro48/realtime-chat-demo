@@ -5,9 +5,11 @@
  * [PROTOCOL]: 变更时更新此头部，然后检查 CLAUDE.md
  */
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'  // react-router-dom: 帖子跳转
-import { AuthModal } from '../components/AuthModal'  // AuthModal：登录/注册弹窗
-import { getUser, type AuthUser } from '../lib/auth'  // auth：读取当前登录用户
+import { useNavigate } from 'react-router-dom'          // react-router-dom: 帖子跳转
+import { AuthModal } from '../components/AuthModal'      // AuthModal：登录/注册弹窗
+import { useAuth } from '../context/AuthContext'         // AuthContext: 全局登录状态
+import { api } from '../services/api'                   // api: 统一 HTTP 封装
+import type { Board, Thread } from '../types'            // types: 共享类型
 
 // 版块名映射（slug → 日文显示名）
 const SLUG_TO_NAME: Record<string, string> = {
@@ -18,21 +20,6 @@ const SLUG_TO_NAME: Record<string, string> = {
 }
 
 const DEPLOY_STAMP = 'Updated 2026-04-12 15:16 JST'
-
-interface Board {
-  slug: string
-  name: string
-}
-
-interface Thread {
-  id: string
-  title: string
-  createdAt: string
-  updatedAt: string
-  board: { slug: string; name: string }
-  _count: { posts: number }
-  score?: number
-}
 
 // 相对时间：N分前 / N時間前 / N日前
 function relativeTime(iso: string): string {
@@ -51,7 +38,7 @@ function fmt(n: number): string {
 
 export function DiscoverPage() {
   const navigate = useNavigate()
-  const [user, setUser] = useState<AuthUser | null>(() => getUser())
+  const { user, login } = useAuth()
   const [boards, setBoards] = useState<Board[]>([])
   const [trending, setTrending] = useState<Thread[]>([])
   const [recent, setRecent] = useState<Thread[]>([])
@@ -81,31 +68,33 @@ export function DiscoverPage() {
 
   // 初次加载版块列表
   useEffect(() => {
-    fetch('/api/boards')
-      .then(r => r.json())
+    api.get<Board[]>('/api/boards')
       .then(d => setBoards(Array.isArray(d) ? d : []))
+      .catch(() => {})
   }, [])
 
   // 切换版块 / 初始时加载 trending & recent
   useEffect(() => {
     const q = selectedBoard ? `&board=${selectedBoard}` : ''
-    fetch(`/api/trending?limit=6${q}`)
-      .then(r => r.json())
-      .then(d => setTrending(safeArray(d)))
-    fetch(`/api/threads/recent?limit=${RECENT_LIMIT}&offset=0${q}`)
-      .then(r => r.json())
-      .then(d => { setRecent(safeArray(d)); setRecentOffset(RECENT_LIMIT) })
+    Promise.all([
+      api.get<Thread[]>(`/api/trending?limit=6${q}`),
+      api.get<Thread[]>(`/api/threads/recent?limit=${RECENT_LIMIT}&offset=0${q}`),
+    ]).then(([t, r]) => {
+      setTrending(safeArray(t))
+      setRecent(safeArray(r))
+      setRecentOffset(RECENT_LIMIT)
+    }).catch(() => {})
   }, [selectedBoard])
 
   // 加载更多最新话题
   function loadMoreRecent() {
     const q = selectedBoard ? `&board=${selectedBoard}` : ''
-    fetch(`/api/threads/recent?limit=${RECENT_LIMIT}&offset=${recentOffset}${q}`)
-      .then(r => r.json())
+    api.get<Thread[]>(`/api/threads/recent?limit=${RECENT_LIMIT}&offset=${recentOffset}${q}`)
       .then(d => {
         setRecent(prev => [...prev, ...safeArray(d)])
         setRecentOffset(prev => prev + RECENT_LIMIT)
       })
+      .catch(() => {})
   }
 
   function goThread(t: Thread) {
@@ -317,8 +306,7 @@ export function DiscoverPage() {
         onClose={() => setAuthOpen(false)}
         defaultTab={authTab}
         onSuccess={me => {
-          localStorage.setItem('akb48_user', JSON.stringify(me))
-          setUser(me)
+          login(me)
           setAuthOpen(false)
         }}
       />

@@ -1,30 +1,14 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { ThumbsDown, Heart } from 'lucide-react'  // lucide-react: 倒喝彩图标、收藏心形图标
+import { ThumbsDown, Bookmark } from 'lucide-react'       // lucide-react: 倒喝彩图标、收藏书签图标
 import { useParams, useNavigate } from 'react-router-dom'  // react-router-dom: URL参数和跳转
-import { Sidebar } from '../components/Sidebar'  // Sidebar: 左滑侧边栏，含全局导航
-import { getUser, authHeaders, type AuthUser } from '../lib/auth'  // auth: 读取登录态和 JWT
-import { AuthModal } from '../components/AuthModal'  // AuthModal: 登录/注册弹窗
+import { Sidebar } from '../components/Sidebar'            // Sidebar: 左滑侧边栏，含全局导航
+import { AuthModal } from '../components/AuthModal'        // AuthModal: 登录/注册弹窗
 import { RightSidebar } from '../components/RightSidebar'  // RightSidebar: 桌面端右侧栏
-import { PullToRefresh } from '../components/PullToRefresh'  // PullToRefresh: 移动端下拉刷新
-
-interface Post {
-  id: string
-  content: string
-  createdAt: string
-  deletedAt: string | null
-  author: { nickname: string; avatarUrl: string | null; avatarColor: string }
-  replyTo: { id: string; author: { nickname: string }; content: string; deletedAt: string | null } | null
-}
-
-// 递归构建引用链：从最远祖先到直接父楼，返回有序数组
-function buildQuoteChain(replyToId: string, allPosts: Post[]): Post[] {
-  const parent = allPosts.find(p => p.id === replyToId)
-  if (!parent) return []
-  if (parent.replyTo) {
-    return [...buildQuoteChain(parent.replyTo.id, allPosts), parent]
-  }
-  return [parent]
-}
+import { PullToRefresh } from '../components/PullToRefresh' // PullToRefresh: 移动端下拉刷新
+import { useAuth } from '../context/AuthContext'           // AuthContext: 全局登录状态
+import { api } from '../services/api'                     // api: 统一 HTTP 封装
+import { buildQuoteChain } from '../lib/forum/quoteChain'  // quoteChain: 引用链业务逻辑
+import type { Post, Thread, BookmarkedThread } from '../types' // types: 共享类型
 
 // 多层引用块：逐层缩进，超过 MAX_VISIBLE 层折叠
 const MAX_VISIBLE = 2
@@ -236,7 +220,7 @@ export function ThreadDetailPage() {
   const [input, setInput] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [user, setUser] = useState<AuthUser | null>(getUser)
+  const { user, login } = useAuth()
   const [authOpen, setAuthOpen] = useState(false)
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login')
   const [isBookmarked, setIsBookmarked] = useState(false)
@@ -257,57 +241,58 @@ export function ThreadDetailPage() {
 
   // loadPosts：只刷新帖子列表，供下拉刷新复用
   const loadPosts = useCallback(async () => {
-    const data = await fetch(`/api/threads/${threadId}/posts`).then(r => r.json())
+    const data = await api.get<Post[]>(`/api/threads/${threadId}/posts`)
     setPosts(data)
   }, [threadId])
 
   // 初始加载：同时拉取帖子、版块标题、收藏状态
   useEffect(() => {
     const requests: Promise<unknown>[] = [
-      fetch(`/api/boards/${slug}/threads`).then(r => r.json()),
-      fetch(`/api/threads/${threadId}/posts`).then(r => r.json()),
+      api.get<Thread[]>(`/api/boards/${slug}/threads`),
+      api.get<Post[]>(`/api/threads/${threadId}/posts`),
     ]
     // 已登录才拉收藏列表
-    if (getUser()) {
-      requests.push(fetch('/api/bookmarks', { headers: authHeaders() }).then(r => r.json()))
+    if (user) {
+      requests.push(api.get<BookmarkedThread[]>('/api/bookmarks'))
     }
     Promise.all(requests)
       .then(([threads, postsData, bookmarks]) => {
-        const thread = (threads as { id: string; title: string }[]).find(t => t.id === threadId)
+        const thread = (threads as Thread[]).find(t => t.id === threadId)
         if (thread) setTitle(thread.title)
         setPosts(postsData as Post[])
         if (bookmarks) {
-          const ids = new Set((bookmarks as { thread: { id: string } }[]).map(b => b.thread.id))
+          const ids = new Set((bookmarks as BookmarkedThread[]).map(b => b.thread.id))
           setIsBookmarked(ids.has(threadId!))
         }
       })
       .catch(() => {}) // 任一请求失败时静默处理，不阻塞页面
       .finally(() => setLoading(false))
-  }, [slug, threadId])
+  }, [slug, threadId, user])
 
   const toggleBookmark = () => {
     if (!user) { setAuthTab('login'); setAuthOpen(true); return }
-    const method = isBookmarked ? 'DELETE' : 'POST'
-    setIsBookmarked(!isBookmarked)  // 乐观更新
-    fetch(`/api/bookmarks/${threadId}`, { method, headers: authHeaders() })
-      .catch(() => setIsBookmarked(isBookmarked))  // 失败回滚
+    const prev = isBookmarked
+    setIsBookmarked(!prev)  // 乐观更新
+    const req = prev
+      ? api.delete(`/api/bookmarks/${threadId}`)
+      : api.post(`/api/bookmarks/${threadId}`)
+    req.catch(() => setIsBookmarked(prev))  // 失败回滚
   }
 
   const handleSubmit = () => {
     if (!input.trim() || submitting || !user) return
     setSubmitting(true)
-    fetch(`/api/threads/${threadId}/posts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ content: input.trim(), replyToId: replyTo?.id }),
+    api.post<Post>(`/api/threads/${threadId}/posts`, {
+      content: input.trim(),
+      replyToId: replyTo?.id,
     })
-      .then(r => r.json())
       .then(newPost => {
         setPosts(prev => [...prev, newPost])
         setInput('')
         setReplyTo(null)
         setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
       })
+      .catch(() => {})
       .finally(() => setSubmitting(false))
   }
 
@@ -344,10 +329,10 @@ export function ThreadDetailPage() {
               className="w-9 h-9 flex items-center justify-center hover:bg-bg-2 rounded-sm"
               aria-label={isBookmarked ? '収藏を解除' : '収藏する'}
             >
-              <Heart
+              <Bookmark
                 className="w-5 h-5"
                 strokeWidth={1.5}
-                color={isBookmarked ? 'var(--color-ds-accent)' : 'var(--color-ds-text-4)'}
+                color={isBookmarked ? 'var(--color-ds-accent)' : 'var(--color-ds-text-2)'}
                 fill={isBookmarked ? 'var(--color-ds-accent)' : 'none'}
               />
             </button>
@@ -450,11 +435,11 @@ export function ThreadDetailPage() {
         open={authOpen}
         onClose={() => setAuthOpen(false)}
         defaultTab={authTab}
-        onSuccess={me => { setUser(me); setAuthOpen(false) }}
+        onSuccess={me => { login(me); setAuthOpen(false) }}
       />
 
-      {/* 底部回复框 — 全宽，pb-[52px] 为 BottomTabBar 留空间 */}
-      <footer className="shrink-0 bg-bg border-t border-ds-border-2 pb-[52px]">
+      {/* 底部回复框 — 全宽，移动端 pb-[52px] 为 BottomTabBar 留空间，桌面端无需 */}
+      <footer className="shrink-0 bg-bg border-t border-ds-border-2 pb-[52px] md:pb-0">
         <div className="max-w-[1060px] mx-auto px-5 py-3">
           {/* 引用预览 */}
           {replyTo && (

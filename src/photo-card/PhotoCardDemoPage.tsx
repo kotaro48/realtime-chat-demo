@@ -9,7 +9,7 @@ const DEPLOY_STAMP = 'Updated 2026-04-10 00:20 JST'
 const DEMO_CARDS: PhotoCardData[][] = [
   // 柏木由紀 (実写真)
   [
-    { id: 'yuki-k', memberName: '柏木 由紀', romaji: 'YUKI.K', edition: '2026 Spring', team: 'Team B', gradientFrom: '#FDA4AF', gradientTo: '#9D174D', imageUrl: '/cards/card-01.jpg' },
+    { id: 'yuki-k', memberName: '正鋳 真優', romaji: 'MAYUU.M', edition: '2026 Spring', team: 'Team K', gradientFrom: '#FDA4AF', gradientTo: '#9D174D', imageUrl: '/cards/card-01.jpg' },
   ],
 ]
 

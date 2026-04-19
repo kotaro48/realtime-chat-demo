@@ -1,18 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'  // react-router-dom: 路由跳转
-import { getUser, authHeaders } from '../lib/auth'  // auth: 登录状态和 JWT
-
-interface BookmarkedThread {
-  bookmarkedAt: string
-  thread: {
-    id: string
-    title: string
-    updatedAt: string
-    board: { slug: string; name: string }
-    author: { nickname: string; avatarColor: string }
-    postCount: number
-  }
-}
+import { useNavigate } from 'react-router-dom'      // react-router-dom: 路由跳转
+import { useAuth } from '../context/AuthContext'     // AuthContext: 全局登录状态
+import { api } from '../services/api'               // api: 统一 HTTP 封装
+import type { BookmarkedThread } from '../types'     // types: 共享类型
 
 function relativeDate(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
@@ -25,7 +15,7 @@ function relativeDate(iso: string): string {
 
 export function BookmarkListPage() {
   const navigate = useNavigate()
-  const user = getUser()
+  const { user } = useAuth()
   const [bookmarks, setBookmarks] = useState<BookmarkedThread[]>([])
   const [loading, setLoading] = useState(true)
   const [scrolled, setScrolled] = useState(false)
@@ -44,11 +34,10 @@ export function BookmarkListPage() {
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
-    fetch('/api/bookmarks', { headers: authHeaders() })
-      .then(r => r.json())
+    api.get<BookmarkedThread[]>('/api/bookmarks')
       .then(data => { setBookmarks(Array.isArray(data) ? data : []); setLoading(false) })
       .catch(() => setLoading(false))
-  }, [])  // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user])
 
   return (
     <div className="flex flex-col min-h-screen bg-bg">
@@ -60,7 +49,7 @@ export function BookmarkListPage() {
         </div>
       </header>
 
-      <main className="flex-1 max-w-[860px] mx-auto w-full px-5 pb-[52px]">
+      <main className="flex-1 max-w-[860px] mx-auto w-full px-5 pb-[52px] md:pb-0">
         {/* 大标题 */}
         <h1 ref={largeTitleRef} className="font-jp text-[28px] font-bold text-ds-text pt-5 pb-3 leading-tight">
           収藏したスレッド

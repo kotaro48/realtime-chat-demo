@@ -1,24 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'  // react-router-dom: URL参数和跳转
-import { Sidebar } from '../components/Sidebar'  // Sidebar: 左滑侧边栏，含全局导航
-import { getUser, authHeaders } from '../lib/auth'  // auth: 读取登录态和 JWT
-import { AuthModal } from '../components/AuthModal'  // AuthModal: 登录/注册弹窗
-import { RightSidebar } from '../components/RightSidebar'  // RightSidebar: 桌面端右侧栏
-
-interface Thread {
-  id: string
-  title: string
-  createdAt: string
-  updatedAt: string
-  author: { nickname: string; avatarUrl: string | null; avatarColor: string }
-  _count: { posts: number }
-}
-
-interface Board {
-  slug: string
-  name: string
-  description: string | null
-}
+import { Sidebar } from '../components/Sidebar'              // Sidebar: 左滑侧边栏，含全局导航
+import { AuthModal } from '../components/AuthModal'          // AuthModal: 登录/注册弹窗
+import { RightSidebar } from '../components/RightSidebar'    // RightSidebar: 桌面端右侧栏
+import { useAuth } from '../context/AuthContext'             // AuthContext: 全局登录状态
+import { api } from '../services/api'                       // api: 统一 HTTP 封装
+import type { Board, Thread } from '../types'                // types: 共享类型
 
 // 相对时间：今日/昨日/N日前
 function relativeDate(iso: string): string {
@@ -33,6 +20,7 @@ function relativeDate(iso: string): string {
 export function ThreadListPage() {
   const { slug } = useParams<{ slug: string }>()
   const navigate = useNavigate()
+  const { user, login } = useAuth()
   const [board, setBoard] = useState<Board | null>(null)
   const [threads, setThreads] = useState<Thread[]>([])
   const [loading, setLoading] = useState(true)
@@ -47,7 +35,6 @@ export function ThreadListPage() {
   const [newError, setNewError] = useState('')
   const titleRef = useRef<HTMLInputElement>(null)
 
-  const user = getUser()
   const [scrolled, setScrolled] = useState(false)
   const largeTitleRef = useRef<HTMLHeadingElement>(null)
 
@@ -64,13 +51,13 @@ export function ThreadListPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch(`/api/boards/${slug}`).then(r => r.json()),
-      fetch(`/api/boards/${slug}/threads`).then(r => r.json()),
+      api.get<Board>(`/api/boards/${slug}`),
+      api.get<Thread[]>(`/api/boards/${slug}/threads`),
     ]).then(([boardData, threadsData]) => {
       setBoard(boardData)
       setThreads(threadsData)
       setLoading(false)
-    })
+    }).catch(() => setLoading(false))
   }, [slug])
 
   // 打开弹窗时聚焦标题输入框
@@ -78,29 +65,26 @@ export function ThreadListPage() {
     if (newThreadOpen) setTimeout(() => titleRef.current?.focus(), 50)
   }, [newThreadOpen])
 
-  function handleNewThread(e: React.FormEvent) {
+  async function handleNewThread(e: React.FormEvent) {
     e.preventDefault()
     if (!newTitle.trim() || !newContent.trim() || newSubmitting) return
     setNewError('')
     setNewSubmitting(true)
-    fetch(`/api/boards/${slug}/threads`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...authHeaders() },
-      body: JSON.stringify({ title: newTitle.trim(), content: newContent.trim() }),
-    })
-      .then(async res => {
-        if (!res.ok) {
-          const data = await res.json()
-          setNewError(data.message ?? 'エラーが発生しました')
-          return
-        }
-        const thread = await res.json()
-        setNewThreadOpen(false)
-        setNewTitle('')
-        setNewContent('')
-        navigate(`/board/${slug}/thread/${thread.id}`)
+    try {
+      const thread = await api.post<{ id: string }>(`/api/boards/${slug}/threads`, {
+        title: newTitle.trim(),
+        content: newContent.trim(),
       })
-      .finally(() => setNewSubmitting(false))
+      setNewThreadOpen(false)
+      setNewTitle('')
+      setNewContent('')
+      navigate(`/board/${slug}/thread/${thread.id}`)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'エラーが発生しました'
+      setNewError(msg === 'LOGIN_REQUIRED' ? 'ログインが必要です' : 'エラーが発生しました')
+    } finally {
+      setNewSubmitting(false)
+    }
   }
 
   function handleNewThreadClick() {
@@ -154,7 +138,7 @@ export function ThreadListPage() {
       </header>
 
       {/* 内容列 + 右侧栏 */}
-      <div className="max-w-[1060px] mx-auto px-5 pb-[52px] flex gap-6 items-start">
+      <div className="max-w-[1060px] mx-auto px-5 pb-[52px] md:pb-0 flex gap-6 items-start">
         <main className="flex-1 min-w-0 bg-bg">
           {/* 大标题 */}
           <h1 ref={largeTitleRef} className="font-jp text-[28px] font-bold text-ds-text pt-5 pb-1 leading-tight">
@@ -209,7 +193,7 @@ export function ThreadListPage() {
         open={authOpen}
         onClose={() => setAuthOpen(false)}
         onSuccess={me => {
-          localStorage.setItem('akb48_user', JSON.stringify(me))
+          login(me)
           setAuthOpen(false)
           setNewThreadOpen(true)  // 登录成功后直接打开发帖弹窗
         }}

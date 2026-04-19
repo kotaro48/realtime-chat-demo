@@ -1,20 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'  // react-router-dom: 路由跳转
+import { useNavigate } from 'react-router-dom'      // react-router-dom: 路由跳转
+import { api } from '../services/api'               // api: 统一 HTTP 封装
+import type { Board, Thread } from '../types'        // types: 共享类型
 
-interface Board {
-  id: string
-  slug: string
-  name: string
-  _count: { threads: number }
-}
-
-interface ActivityThread {
-  id: string
-  title: string
-  updatedAt: string
-  board: { slug: string; name: string }
-  author: { nickname: string }
-  _count: { posts: number }
+interface ActivityThread extends Thread {
+  author: { nickname: string; avatarColor: string; avatarUrl: string | null }
 }
 
 function relativeTime(iso: string): string {
@@ -35,12 +25,12 @@ export function RightSidebar({ activeSlug }: { activeSlug?: string }) {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/boards').then(r => r.json()),
-      fetch('/api/activity').then(r => r.json()),
+      api.get<Board[]>('/api/boards'),
+      api.get<ActivityThread[]>('/api/boards/activity'),
     ]).then(([b, a]) => {
       setBoards(b)
       setActivity(a)
-    })
+    }).catch(() => {})
   }, [])
 
   return (

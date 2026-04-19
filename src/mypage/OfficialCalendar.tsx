@@ -1,17 +1,7 @@
 import { useState, useEffect } from 'react'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
-
-// ── 类型 ──────────────────────────────────────────────────
-interface OfficialEvent {
-  id: string
-  title: string
-  date: string
-  endDate: string | null
-  category: string
-  parentCategory: string | null
-  cssClass: string | null
-  articleImage: string | null
-}
+import { api } from '../services/api'              // api: 统一 HTTP 封装
+import type { OfficialEvent } from '../types'       // types: 共享类型
 
 // ── cssClass → 显示配置 ───────────────────────────────────
 const EVENT_TYPE_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
@@ -139,8 +129,7 @@ export function OfficialCalendar() {
 
   useEffect(() => {
     setLoading(true)
-    fetch(`/api/official-events?year=${year}&month=${month}`)
-      .then(r => r.json())
+    api.get<OfficialEvent[]>(`/api/official-events?year=${year}&month=${month}`)
       .then(data => { setEvents(data); setLoading(false) })
       .catch(() => setLoading(false))
   }, [year, month])

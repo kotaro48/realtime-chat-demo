@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import type { AuthUser } from '../lib/auth'  // auth: 用户类型
+import { API_BASE } from '../config'          // config: 环境感知的 API 基础地址
+import type { AuthUser } from '../types'       // types: 共享用户类型
 
 interface AuthModalProps {
   open: boolean
@@ -9,7 +10,7 @@ interface AuthModalProps {
 }
 
 async function fetchMe(token: string): Promise<AuthUser> {
-  const res = await fetch('/auth/me', {
+  const res = await fetch(`${API_BASE}/auth/me`, {
     headers: { Authorization: `Bearer ${token}` },
   })
   return res.json()
@@ -48,7 +49,7 @@ export function AuthModal({ open, onClose, onSuccess, defaultTab = 'login' }: Au
         ? { email, password }
         : { email, password, nickname }
 
-      const res = await fetch(endpoint, {
+      const res = await fetch(`${API_BASE}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),

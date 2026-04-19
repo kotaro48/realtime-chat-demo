@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { io, type Socket } from 'socket.io-client'  // socket.io-client: WebSocket 客户端
-import { useNavigate } from 'react-router-dom'       // react-router-dom: 路由跳转
-import { getUser, getToken } from '../lib/auth'       // auth: 读取登录状态和 JWT
+import type { Socket } from 'socket.io-client'        // socket.io-client: WebSocket 类型
+import { useNavigate } from 'react-router-dom'         // react-router-dom: 路由跳转
+import { connectSocket, destroySocket } from '../services/socket'  // socket: 统一 Socket.IO 封装
+import { useAuth } from '../context/AuthContext'       // AuthContext: 全局登录状态
 import type { ChatMessage, ChatAuthor, QuotedMessage, ReactionGroup, RoomInfo } from './types'
 import { ChatHeader } from './components/ChatHeader'
 import { MessageList } from './components/MessageList'
@@ -9,11 +10,10 @@ import { ChatInput } from './components/ChatInput'
 
 const ROOM_ID   = 'akb48-lobby'
 const ROOM_NAME = 'AKB48 チャット'
-// 生产环境直连 Railway 后端（Vercel rewrites 不支持 WebSocket 升级）
-const SOCKET_URL = import.meta.env.VITE_BACKEND_URL || window.location.origin
 
 export function ChatRoomContainer() {
   const navigate = useNavigate()
+  const { user: authUser } = useAuth()
   const [room,      setRoom]      = useState<RoomInfo>({ id: ROOM_ID, name: ROOM_NAME, onlineCount: 0 })
   const [messages,  setMessages]  = useState<ChatMessage[]>([])
   const [connected, setConnected] = useState(false)
@@ -21,7 +21,6 @@ export function ChatRoomContainer() {
   const [sendError, setSendError] = useState<string | null>(null)
   const socketRef = useRef<Socket | null>(null)
 
-  const authUser = getUser()
   const currentUser: ChatAuthor | null = authUser
     ? { id: authUser.id, nickname: authUser.nickname, avatarColor: authUser.avatarColor }
     : null
@@ -29,10 +28,7 @@ export function ChatRoomContainer() {
   useEffect(() => {
     if (!currentUser) return
 
-    const socket = io(`${SOCKET_URL}/chat`, {
-      transports: ['websocket'],
-      auth: { token: getToken() },
-    })
+    const socket = connectSocket()
     socketRef.current = socket
 
     socket.on('connect',    () => setConnected(true))
@@ -61,7 +57,8 @@ export function ChatRoomContainer() {
 
     socket.emit('room:join', { roomId: ROOM_ID })
 
-    return () => { socket.disconnect(); socketRef.current = null }
+    // 离开页面时销毁单例连接（下次进入重新创建）
+    return () => { destroySocket(); socketRef.current = null }
   }, [])  // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSend = (text: string, replyToId?: string) => {
