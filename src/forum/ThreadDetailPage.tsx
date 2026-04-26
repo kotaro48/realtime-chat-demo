@@ -330,10 +330,9 @@ export function ThreadDetailPage() {
               aria-label={isBookmarked ? '収藏を解除' : '収藏する'}
             >
               <Bookmark
-                className="w-5 h-5"
-                strokeWidth={1.5}
-                color={isBookmarked ? 'var(--color-ds-accent)' : 'var(--color-ds-text-2)'}
-                fill={isBookmarked ? 'var(--color-ds-accent)' : 'none'}
+                className={`w-5 h-5 ${isBookmarked ? 'text-ds-accent' : 'text-ds-text-2'}`}
+                strokeWidth={1.8}
+                fill={isBookmarked ? 'currentColor' : 'none'}
               />
             </button>
             <button

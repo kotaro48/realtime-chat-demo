@@ -199,10 +199,14 @@ export class SyncService {
         const teamMatch = block.match(/<span class="teamName">([^<]+)<\/span>/);
         const team = teamMatch ? teamMatch[1].trim() : defaultTeam;
 
+        // 头像：<figure class="ShapeR2 memberImg"><img src="https://...jpg" alt="...">
+        const imgMatch = block.match(/class="ShapeR2 memberImg"><img\s+src="([^"]+)"/);
+        const imageUrl = imgMatch ? imgMatch[1].trim() : null;
+
         await this.prisma.member.upsert({
           where: { memberId },
-          create: { memberId, name, nameEn, team, isActive: true },
-          update: { name, nameEn, team },
+          create: { memberId, name, nameEn, team, imageUrl, isActive: true },
+          update: { name, nameEn, team, imageUrl },
         });
         count++;
       }

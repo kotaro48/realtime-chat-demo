@@ -12,7 +12,7 @@ export class HandshakeService {
     return this.prisma.member.findMany({
       where: { isActive: true },
       orderBy: [{ team: 'asc' }, { name: 'asc' }],
-      select: { id: true, name: true, nameKana: true, team: true },
+      select: { id: true, name: true, nameKana: true, team: true, imageUrl: true },
     })
   }
 

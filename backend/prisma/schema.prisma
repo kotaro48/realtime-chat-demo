@@ -29,6 +29,7 @@ model User {
   handshakeTickets HandshakeTicket[]
   watchedMembers   UserMemberWatch[]
   bookmarks        ThreadBookmark[]
+  activityLogs     ActivityLog[]
 }
 
 enum Role {
@@ -133,12 +134,67 @@ model Report {
   reporter    User         @relation(fields: [reporterId], references: [id])
   chatMessage ChatMessage? @relation("ChatMessageReports", fields: [chatMessageId], references: [id])
   post        Post?        @relation("PostReports", fields: [postId], references: [id])
+  activityLog ActivityLog? @relation("ActivityLogReports", fields: [activityLogId], references: [id])
+
+  activityLogId String?
 }
 
 enum ReportStatus {
   PENDING   // 待审核
   RESOLVED  // 已处理
   DISMISSED // 已忽略
+}
+
+// ─── 偶像活地図 ────────────────────────────────────────
+
+enum ActivityEventType {
+  HANDSHAKE   // 握手会
+  CONCERT     // コンサート
+  THEATER     // 劇場公演
+  PILGRIMAGE  // 聖地巡礼
+  OTHER       // その他
+}
+
+enum ActivityVisibility {
+  PRIVATE
+  PUBLIC
+}
+
+enum LocationPrecision {
+  EXACT   // 精确坐标（仅私有可见）
+  VENUE   // 场馆级（公开默认）
+  CITY    // 城市级
+}
+
+model ActivityLog {
+  id                String             @id @default(cuid())
+  userId            String
+  user              User               @relation(fields: [userId], references: [id])
+  date              DateTime
+  eventType         ActivityEventType
+  venueName         String
+  lat               Float
+  lng               Float
+  locationPrecision LocationPrecision  @default(VENUE)
+  memo              String?
+  visibility        ActivityVisibility @default(PRIVATE)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+
+  members ActivityLogMember[]
+  reports Report[]            @relation("ActivityLogReports")
+
+  @@index([userId, date])
+  @@index([visibility, date, id])
+}
+
+model ActivityLogMember {
+  activityLogId String
+  memberId      String
+  activityLog   ActivityLog @relation(fields: [activityLogId], references: [id], onDelete: Cascade)
+  member        Member      @relation(fields: [memberId], references: [id])
+
+  @@id([activityLogId, memberId])
 }
 
 // ─── 握手会功能 ────────────────────────────────────────
@@ -154,8 +210,9 @@ model Member {
   team      String?                      // Team B / 研究生
   isActive  Boolean @default(true)
 
-  tickets   HandshakeTicket[]
-  watchedBy UserMemberWatch[]
+  tickets      HandshakeTicket[]
+  watchedBy    UserMemberWatch[]
+  activityLogs ActivityLogMember[]
 }
 
 // 用户自建的握手活动（一个活动 = X 轴的一列）

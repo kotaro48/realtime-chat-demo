@@ -104,3 +104,50 @@ export interface RoomInfo {
   name: string
   onlineCount: number
 }
+
+// ── 偶像活地図 ────────────────────────────────────────────
+
+export type ActivityEventType = 'HANDSHAKE' | 'CONCERT' | 'THEATER' | 'PILGRIMAGE' | 'OTHER'
+export type ActivityVisibility = 'PRIVATE' | 'PUBLIC'
+export type LocationPrecision = 'EXACT' | 'VENUE' | 'CITY'
+
+export interface ActivityLogMemberItem {
+  memberId: string
+  member: {
+    id: string
+    name: string
+    nameKana: string | null
+    imageUrl: string | null
+  }
+}
+
+export interface ActivityLog {
+  id: string
+  userId: string
+  date: string
+  eventType: ActivityEventType
+  venueName: string
+  lat: number
+  lng: number
+  locationPrecision: LocationPrecision
+  memo: string | null
+  visibility: ActivityVisibility
+  createdAt: string
+  members: ActivityLogMemberItem[]
+}
+
+export interface GeocodingResult {
+  lat: number
+  lng: number
+  displayName: string
+}
+
+export interface CreateActivityLogPayload {
+  date: string
+  eventType: ActivityEventType
+  venueName: string
+  lat: number
+  lng: number
+  memo?: string
+  memberIds?: string[]
+}
