@@ -10,6 +10,7 @@ import { HandshakeModule } from './handshake/handshake.module';
 import { SyncModule } from './sync/sync.module';
 import { ChatModule } from './chat/chat.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
+import { WallPinModule } from './wall-pin/wall-pin.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BookmarkModule } from './bookmark/bookmark.module';
     SyncModule,
     ChatModule,
     BookmarkModule,
+    WallPinModule,
   ],
   controllers: [AppController],
   providers: [AppService],
