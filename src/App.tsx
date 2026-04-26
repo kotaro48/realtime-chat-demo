@@ -12,6 +12,7 @@ import { LeftNav } from './components/LeftNav'
 import { BookmarkListPage } from './bookmarks/BookmarkListPage'
 import { PhotoCardDemoPage } from './photo-card/PhotoCardDemoPage'
 import { ActivityMapPage } from './venue-map/ActivityMapPage'
+import { WallPage } from './wall/WallPage'
 import { DesignSystemPage } from './design-system/DesignSystemPage'
 
 // 主要页面布局：
@@ -47,6 +48,7 @@ function AnimatedRoutes() {
           <Route path="/mypage"                        element={<MyPage />} />
           <Route path="/photo-demo"                    element={<PhotoCardDemoPage />} />
           <Route path="/venue"                         element={<ActivityMapPage />} />
+          <Route path="/wall"                          element={<WallPage />} />
         </Route>
         <Route path="/design-system"  element={<DesignSystemPage />} />
       </Routes>

@@ -12,6 +12,7 @@ import { ChatModule } from './chat/chat.module';
 import { BookmarkModule } from './bookmark/bookmark.module';
 import { ActivityLogModule } from './activity-log/activity-log.module';
 import { GeocodingModule } from './geocoding/geocoding.module';
+import { WallPinModule } from './wall-pin/wall-pin.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { GeocodingModule } from './geocoding/geocoding.module';
     BookmarkModule,
     ActivityLogModule,          // 偶像活地図：活动记录 CRUD
     GeocodingModule,            // 偶像活地図：Nominatim 地理编码代理
+    WallPinModule,
   ],
   controllers: [AppController],
   providers: [AppService],

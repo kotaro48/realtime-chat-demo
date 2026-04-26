@@ -151,3 +151,30 @@ export interface CreateActivityLogPayload {
   memo?: string
   memberIds?: string[]
 }
+
+// ── 笔记墙 ────────────────────────────────────────────────
+export interface WallPin {
+  id: string
+  url: string
+  platform: 'twitter' | 'instagram' | 'other'
+  title: string | null
+  description: string | null
+  imageUrl: string | null
+  authorName: string | null
+  authorAvatar: string | null
+  siteName: string | null
+  memo: string | null
+  isPublic: boolean
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface WallPinPreview {
+  title: string | null
+  description: string | null
+  imageUrl: string | null
+  authorName: string | null
+  authorAvatar: string | null
+  siteName: string | null
+}

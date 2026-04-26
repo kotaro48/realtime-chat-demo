@@ -5,7 +5,7 @@
 import { useNavigate, useLocation } from 'react-router-dom'  // react-router-dom: 路由跳转和当前路径
 import {
   Compass, LayoutList, MessageCircle,
-  Bookmark, User, Image, MapPin,
+  Bookmark, User, Image, MapPin, LayoutGrid,
 } from 'lucide-react'  // lucide-react: 各导航项图标
 import { useAuth } from '../context/AuthContext'  // AuthContext: 读取登录状态
 
@@ -18,6 +18,7 @@ const PRIMARY = [
 
 // 二级入口（与 BottomTabBar 的「もっと」菜单一致）
 const SECONDARY = [
+  { path: '/wall',       match: (p: string) => p.startsWith('/wall'),       label: '笔记墙',           Icon: LayoutGrid },
   { path: '/bookmarks',  match: (p: string) => p.startsWith('/bookmarks'),  label: '収藏',             Icon: Bookmark },
   { path: '/mypage',     match: (p: string) => p.startsWith('/mypage'),     label: 'マイページ',       Icon: User },
   { path: '/photo-demo', match: (p: string) => p.startsWith('/photo-demo'), label: 'デジタル生写真',   Icon: Image },

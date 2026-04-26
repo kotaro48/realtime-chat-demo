@@ -30,6 +30,9 @@ model User {
   watchedMembers   UserMemberWatch[]
   bookmarks        ThreadBookmark[]
   activityLogs     ActivityLog[]
+
+  wallPins         WallPin[]
+
 }
 
 enum Role {
@@ -290,4 +293,27 @@ model ThreadBookmark {
 
   @@id([userId, threadId])
   @@index([userId])
+}
+
+// ─── 笔记墙 ────────────────────────────────────────────────
+model WallPin {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  url          String
+  platform     String                  // "twitter" | "instagram" | "other"
+  title        String?
+  description  String?
+  imageUrl     String?
+  authorName   String?
+  authorAvatar String?
+  siteName     String?
+  memo         String?
+  isPublic     Boolean  @default(false)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([isPublic, createdAt])
 }

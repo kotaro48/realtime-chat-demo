@@ -25,6 +25,7 @@ const TABS = [
 
 // 三点菜单里的额外页面入口（収藏移至此处）
 const MORE_ITEMS = [
+  { path: '/wall',       label: '笔记墙' },
   { path: '/bookmarks',  label: '収藏' },
   { path: '/mypage',     label: 'マイページ' },
   { path: '/photo-demo', label: 'デジタル生写真' },
